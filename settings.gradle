@@ -1,0 +1,3 @@
+rootProject.name = 'doip-tester-toolkit'
+
+//includeBuild "../doip-library"
