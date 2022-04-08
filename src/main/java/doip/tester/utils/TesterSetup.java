@@ -1,0 +1,179 @@
+package doip.tester.utils;
+
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Vector;
+
+import doip.library.properties.EmptyPropertyValue;
+import doip.library.properties.MissingProperty;
+import doip.library.util.Helper;
+import doip.logging.LogManager;
+import doip.logging.Logger;
+
+/**
+ * Contains all utilities to perform tests for a DoIP gateway.
+ * It makes implementation of test cases much more easy.
+ */
+public class TesterSetup {
+
+	/**
+	 * log4j logger
+	 */
+	private static Logger logger = LogManager.getLogger(TesterSetup.class);
+	
+	/**
+	 * Test configuration with parameters for all tests.
+	 */
+	private TestConfig config = null; 
+	
+	/**
+	 * List of TCP connections to the gateway
+	 */
+	private Vector<DoipTcpConnectionWithEventCollection> tcpConnections = 
+			new Vector<DoipTcpConnectionWithEventCollection>();
+	
+	/**
+	 * Message handler for UDP messages
+	 */
+	private TestDoipUdpMessageHandler testDoipUdpMessageHandler = null;
+	
+	
+	public TesterSetup() {
+		tcpConnections.ensureCapacity(8);
+	}
+	
+	/**
+	 * Initializes the test setup
+	 * @param filename Filename of a property file which contains
+	 *                 all settings which are required to initialize
+	 *                 the test setup.
+	 * @return Returns true if initialization was successful.
+	 * @throws Exception 
+	 * @throws EmptyPropertyValue 
+	 * @throws MissingProperty 
+	 * @throws IOException 
+	 */
+	public boolean initialize(String filename) throws Exception {
+		
+		try {
+			if (logger.isTraceEnabled()) {
+				logger.trace(">>> public boolean initialize(String filename)");
+			}
+	
+			this.config = new TestConfig(filename);
+			this.testDoipUdpMessageHandler = new TestDoipUdpMessageHandler(this.config);
+			DatagramSocket socket = new DatagramSocket();
+			this.testDoipUdpMessageHandler.start(socket);
+			return true;
+			
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (logger.isTraceEnabled()) {
+				logger.trace("<<< public boolean initialize(String filename)");
+			}
+		}
+	}
+	
+	/**
+	 * Uninitializes the test setup
+	 * @return
+	 */
+	public boolean uninitialize() {
+		try {
+			if (logger.isTraceEnabled()) {
+				logger.trace(">>> public boolean uninitialize()");
+			}
+	
+			if (this.tcpConnections != null) {
+				for (DoipTcpConnectionWithEventCollection conn : this.tcpConnections) {
+					conn.stop();																	
+				}
+				this.tcpConnections.clear();
+			}
+			
+			if (this.testDoipUdpMessageHandler != null) {
+				this.testDoipUdpMessageHandler.stop();
+				this.testDoipUdpMessageHandler = null;
+			}
+			
+			this.config = null;
+		
+			return true;
+
+		} catch (Exception e) {
+			logger.error(e.getClass().getName() + ": " + e.getMessage());
+			throw e;
+			
+		} finally {
+			if (logger.isTraceEnabled()) {
+				logger.trace("<<< public boolean uninitialize()");
+			}
+		}
+	}
+	
+	/**
+	 * Creates a new TCP connection to the DoIP gateway.
+	 * @return The new TCP connection
+	 * @throws IOException 
+	 */
+	public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection() throws IOException {
+		try {
+			if (logger.isTraceEnabled()) {
+				logger.trace(">>> public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection()");
+			}
+		
+			DoipTcpConnectionWithEventCollection conn = new DoipTcpConnectionWithEventCollection(config);
+			this.tcpConnections.add(conn);
+			Socket socket = new Socket(config.getTargetAddress(), config.getTargetPort());
+			socket.setTcpNoDelay(true);
+			conn.start(socket);
+			return conn;
+		
+		} catch (Exception e) {
+			if (logger.isErrorEnabled()) {
+				logger.error("Unexpected " + e.getClass().getName() + " in createDoipTcpConnectionWithEventCollection()");
+				logger.error(Helper.getExceptionAsString(e));
+			}
+			throw e;
+		} finally {
+			if (logger.isTraceEnabled()) {
+				logger.trace("<<< public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection()");
+			}
+		}
+	}
+	
+	/**
+	 * Removes a TCP connection.
+	 * @param conn
+	 */
+	public void removeDoipTcpConnectionTest(DoipTcpConnectionWithEventCollection conn) {
+		try {
+			if (logger.isTraceEnabled()) {
+				logger.trace(">>> public void removeDoipTcpConnectionTest(TestDoipTcpConnection conn)");
+			}
+			
+			conn.stop();
+			this.tcpConnections.remove(conn);
+		
+		} catch (Exception e) {
+			logger.error("Unexpected " + e.getClass().getName() + " in removeDoipTcpConnectionTest()");
+			logger.error(e.getClass().getName());
+			throw e;
+		} finally {
+			if (logger.isTraceEnabled()) {
+				logger.trace("<<< public void removeDoipTcpConnectionTest(TestDoipTcpConnection conn)");
+			}
+		}
+	}
+	
+	public TestDoipUdpMessageHandler getTestDoipUdpMessageHandler() {
+		return this.testDoipUdpMessageHandler;
+	}
+	
+	public TestConfig getConfig() {
+		return this.config;
+	}
+}
