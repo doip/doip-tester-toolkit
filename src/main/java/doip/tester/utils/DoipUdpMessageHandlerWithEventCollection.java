@@ -36,7 +36,7 @@ import doip.tester.event.DoipEventUdpVehicleIdentRequestWithVin;
 /**
  * Implements features to perform tests on a DoipUdpMessageHandler.
  */
-public class DoipUdpMessageHandlerWithEventCollection
+public class DoipUdpMessageHandlerWithEventCollection extends DoipUdpMessageHandler
 		implements DoipUdpMessageHandlerListener {
 
 	/**
@@ -44,11 +44,6 @@ public class DoipUdpMessageHandlerWithEventCollection
 	 */
 	private static Logger logger = LogManager
 			.getLogger(DoipUdpMessageHandlerWithEventCollection.class);
-
-	/**
-	 * The DoipUdpMessageHandler on which the tests will be performed.
-	 */
-	private DoipUdpMessageHandler doipUdpMessageHandler = null;
 
 	/**
 	 * List where the incoming events will be stored.
@@ -71,9 +66,8 @@ public class DoipUdpMessageHandlerWithEventCollection
 	 * @param config The test configuration
 	 */
 	public DoipUdpMessageHandlerWithEventCollection(TestConfig config) {
+		super("UDP-RECV", null);
 		this.config = config;
-		this.doipUdpMessageHandler = new DoipUdpMessageHandler("UDP-RECV",
-				null);
 	}
 	
 //-----------------------------------------------------------------------------	
@@ -89,8 +83,8 @@ public class DoipUdpMessageHandlerWithEventCollection
 	 */
 	public void start(DatagramSocket socket) {
 		logger.trace(">>> public void start(DatagramSocket socket)");
-		this.doipUdpMessageHandler.addListener(this);
-		this.doipUdpMessageHandler.start(socket);
+		this.addListener(this);
+		this.start(socket);
 		logger.trace("<<< public void start(DatagramSocket socket)");
 	}
 
@@ -101,83 +95,12 @@ public class DoipUdpMessageHandlerWithEventCollection
 	 */
 	public void stop() {
 		logger.trace(">>> public void stop()");
-		this.doipUdpMessageHandler.stop();
-		this.doipUdpMessageHandler.removeListener(this);
+		this.stop();
+		this.removeListener(this);
 		logger.trace("<<< public void stop()");
 	}
 
-	/**
-	 * Sends a UDP message to the address which is given as argument.
-	 * The target port will be taken from the configuration file.
-	 * @param data The data to send.
-	 * 
-	 * @param address The target address to which the UDP message shall
-	 *                be send
-	 *                
-	 * @throws IOException Throws an IOException if there was a problem 
-	 *                     to send the data
-	 */
-	public void send(byte[] data, InetAddress address) throws IOException {
-		logger.trace(">>> public void send(byte[] data, InetAddress address) throws IOException");
-		this.doipUdpMessageHandler.sendDatagramPacket(data, data.length,
-				address, config.getTargetPort());
-		logger.trace("<<< public void send(byte[] data, InetAddress address) throws IOException");
-	}
 
-	/**
-	 * Sends a DoIP vehicle identification request message.
-	 * 
-	 * @param address The target address to which the message shall be send to.
-	 * 
-	 * @throws IOException Throws an IOException if there was a problem 
-	 *                     to send the data.
-	 */
-	public void sendDoipUdpVehicleIdentRequest(InetAddress address) throws IOException {
-		logger.trace(">>> public void sendDoipUdpVehicleIdentRequest(InetAddress address) throws IOException");
-		DoipUdpVehicleIdentRequest request = new DoipUdpVehicleIdentRequest();
-		this.doipUdpMessageHandler.send(request, address,
-				config.getTargetPort());
-		logger.trace("<<< public void sendDoipUdpVehicleIdentRequest(InetAddress address) throws IOException");
-	}
-
-	/**
-	 * Sends a DoIP vehicle identification request message with EID.
-	 * 
-	 * @param eid The EID which shall be set in the message. 
-	 * 
-	 * @param address The target address to which the message shall be send to.
-	 *
-	 * @throws IOException Throws an IOException if there was a problem 
-	 *                     to send the data.
-	 */
-	public void sendDoipUdpVehicleIdentRequestWithEid(byte[] eid, InetAddress address) throws IOException {
-		logger.trace(">>> public void sendDoipUdpVehicleIdentRequestWithEid(byte[] eid, InetAddress address) throws IOException");
-		DoipUdpVehicleIdentRequestWithEid request = new DoipUdpVehicleIdentRequestWithEid(
-				eid);
-		this.doipUdpMessageHandler.send(request, address,
-				config.getTargetPort());
-		logger.trace("<<< public void sendDoipUdpVehicleIdentRequestWithEid(byte[] eid, InetAddress address) throws IOException");
-	}
-
-	/**
-	 * Sends a DoIP vehicle identification request message with VIN
-	 * 
-	 * @param vin the VIN which shall be set in the message.
-	 * 
-	 * @param address The target address to which the message shall be send to.
-	 * 
-	 * @throws IOException Throws an IOException if there was a problem 
-	 *                     to send the data.
-	 */
-	public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address) throws IOException {
-		logger.trace(">>> public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address) throws IOException");
-		DoipUdpVehicleIdentRequestWithVin request = new DoipUdpVehicleIdentRequestWithVin(
-				vin);
-		this.doipUdpMessageHandler.send(request, address,
-				config.getTargetPort());
-		logger.trace("<<< public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address) throws IOException");
-	}
-	
 	public void clearEvents() {
 		this.events.clear();
 	}
