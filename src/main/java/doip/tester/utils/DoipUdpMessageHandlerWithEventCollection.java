@@ -84,7 +84,7 @@ public class DoipUdpMessageHandlerWithEventCollection extends DoipUdpMessageHand
 	public void start(DatagramSocket socket) {
 		logger.trace(">>> public void start(DatagramSocket socket)");
 		this.addListener(this);
-		this.start(socket);
+		super.start(socket);
 		logger.trace("<<< public void start(DatagramSocket socket)");
 	}
 
@@ -95,7 +95,7 @@ public class DoipUdpMessageHandlerWithEventCollection extends DoipUdpMessageHand
 	 */
 	public void stop() {
 		logger.trace(">>> public void stop()");
-		this.stop();
+		super.stop();
 		this.removeListener(this);
 		logger.trace("<<< public void stop()");
 	}
