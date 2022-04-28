@@ -37,7 +37,7 @@ public class TestSetup {
 	/**
 	 * Message handler for UDP messages
 	 */
-	private TestDoipUdpMessageHandler testDoipUdpMessageHandler = null;
+	private DoipUdpMessageHandlerWithEventCollection testDoipUdpMessageHandler = null;
 	
 	
 	public TestSetup() {
@@ -63,7 +63,7 @@ public class TestSetup {
 			}
 	
 			this.config = new TestConfig(filename);
-			this.testDoipUdpMessageHandler = new TestDoipUdpMessageHandler(this.config);
+			this.testDoipUdpMessageHandler = new DoipUdpMessageHandlerWithEventCollection(this.config);
 			DatagramSocket socket = new DatagramSocket();
 			this.testDoipUdpMessageHandler.start(socket);
 			return true;
@@ -169,7 +169,7 @@ public class TestSetup {
 		}
 	}
 	
-	public TestDoipUdpMessageHandler getTestDoipUdpMessageHandler() {
+	public DoipUdpMessageHandlerWithEventCollection getTestDoipUdpMessageHandler() {
 		return this.testDoipUdpMessageHandler;
 	}
 	

@@ -36,14 +36,14 @@ import doip.tester.event.DoipEventUdpVehicleIdentRequestWithVin;
 /**
  * Implements features to perform tests on a DoipUdpMessageHandler.
  */
-public class TestDoipUdpMessageHandler
+public class DoipUdpMessageHandlerWithEventCollection
 		implements DoipUdpMessageHandlerListener {
 
 	/**
 	 * log4j logger
 	 */
 	private static Logger logger = LogManager
-			.getLogger(TestDoipUdpMessageHandler.class);
+			.getLogger(DoipUdpMessageHandlerWithEventCollection.class);
 
 	/**
 	 * The DoipUdpMessageHandler on which the tests will be performed.
@@ -70,7 +70,7 @@ public class TestDoipUdpMessageHandler
 	 * 
 	 * @param config The test configuration
 	 */
-	public TestDoipUdpMessageHandler(TestConfig config) {
+	public DoipUdpMessageHandlerWithEventCollection(TestConfig config) {
 		this.config = config;
 		this.doipUdpMessageHandler = new DoipUdpMessageHandler("UDP-RECV",
 				null);
