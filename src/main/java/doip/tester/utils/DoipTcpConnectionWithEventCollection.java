@@ -34,7 +34,8 @@ import doip.tester.exception.RoutingActivationFailed;
 /**
  * Class for testing a DoIP TCP connection. 
  */
-public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionListener {
+//public class DoipTcpConnectionWithEventCollection extends DoipTcpConnection {
+public class DoipTcpConnectionWithEventCollection extends DoipTcpConnection implements DoipTcpConnectionListener {
 
 	/**
 	 * log4j logger
@@ -42,136 +43,17 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 	private static Logger logger = LogManager.getLogger(DoipTcpConnectionWithEventCollection.class);
 	
 	/**
-	 * The DoIP TCP connection which is under test
-	 */
-	private DoipTcpConnection doipTcpConnection = null;
-	
-	/**
-	 * contains the configuration for the tests. It
-	 * needs to be passed in the constructor
-	 */
-	private TestConfig config = null;
-	
-	/**
-	 * Instance counter to give each DoIP TCP connection a new name 
-	 * for logging
-	 */
-	private static int instanceCounter = 1;
-	
-	/**
 	 * Event queue for incoming events.
 	 * Can be TCP messages or connection closed event.
 	 */
 	private volatile Vector<DoipEvent> events = new Vector<DoipEvent>();
-	
-	private volatile LinkedList<DoipTcpConnectionWithEventCollectionListener> listeners = 
-			new LinkedList<DoipTcpConnectionWithEventCollectionListener>();
-	
-	/**
-	 * Constructor
-	 * @param config The test configuration for this TCP connection.-
-	 */
-	public DoipTcpConnectionWithEventCollection(TestConfig config) {
-		this.config = config;
-		doipTcpConnection = new DoipTcpConnection("TCP-CONN-TESTER-" + instanceCounter, config.getMaxByteArraySizeLogging());
+
+	public DoipTcpConnectionWithEventCollection(String tcpReceiverThreadName, int maxByteArraySizeLogging) {
+		super(tcpReceiverThreadName, maxByteArraySizeLogging);
+		this.addListener(this);
 	}
+
 	
-	/**
-	 * Starts the thread of the DoIP TCP connection.
-	 * @param socket The TCP socket.
-	 */
-	public void start(Socket socket) {
-		if (logger.isTraceEnabled()) {
-			logger.trace(">>> public void start(Socket socket)");
-		}
-		
-		doipTcpConnection.addListener(this);
-		doipTcpConnection.start(socket);
-		
-		if (logger.isTraceEnabled()) { 
-			logger.trace("<<< public void start(Socket socket)");
-		}
-	}
-	
-	/**
-	 * Stops the DoIP TCP connection thread.
-	 */
-	public void stop() {
-		if (logger.isTraceEnabled()) {
-			logger.trace(">>> public void stop()");
-		}
-		
-		doipTcpConnection.stop();
-		doipTcpConnection.removeListener(this);
-		
-		if (logger.isTraceEnabled()) {
-			logger.trace("<<< public void stop()");
-		}
-	}
-	
-	public void addListener(DoipTcpConnectionWithEventCollectionListener listener) {
-		this.listeners.add(listener);
-	}
-	
-	public void removeListener(DoipTcpConnectionWithEventCollectionListener listener) {
-		this.listeners.remove(listener);
-	}
-	
-	public void onEvent(DoipEvent event) {
-		for (DoipTcpConnectionWithEventCollectionListener listener : listeners) {
-			listener.onEvent(this, event);
-		}
-	}
-	
-	
-	/**
-	 * Performs a routing activation. 
-	 * @param activationType The activation type (see ISO 13400)
-	 * @param expectedResponseCode The expected response code in the response.
-	 *                             If the response code is different an AssertionError
-	 *                             will be thrown.
-	 * @return Returns true if routing activation was successful
-	 * @throws InterruptedException 
-	 * @throws RoutingActivationFailed 
-	 */
-	public boolean performRoutingActivation(int activationType, int expectedResponseCode) throws InterruptedException {
-		
-		// Clear the event queue 
-		this.clearEvents();
-		
-		this.sendRoutingActivationRequest(config.getTesterAddress(), activationType, -1);
-		
-		// Wait for incoming TCP message
-		boolean ret;
-		try {
-			ret = this.waitForEvents(1, config.getRoutingActivationTimeout());
-		} catch (InterruptedException e) {
-			logger.error(Helper.getExceptionAsString(e));
-			throw e;
-		}
-		if (ret == false) {
-			logger.error("No Routing Activation Response received");
-			return false;
-		}
-		
-		// Get the event out of the queue
-		DoipEvent event = this.getEvent(0);
-		if (!(event instanceof DoipEventTcpRoutingActivationResponse)) {
-			logger.error("Received event is not type of DoipEventTcpRoutingActivationResponse");
-			return false;
-		}
-		
-		// Check the response code which shall match to the expected response code
-		DoipEventTcpRoutingActivationResponse eventRoutingActivationResponse = (DoipEventTcpRoutingActivationResponse) event;
-		DoipTcpRoutingActivationResponse  routingActivationResponse = (DoipTcpRoutingActivationResponse) eventRoutingActivationResponse.getDoipMessage();
-		int responseCode = routingActivationResponse.getResponseCode();
-		if (responseCode != expectedResponseCode) {
-			logger.error("Response code does not match the expected response code");
-			return false;
-		}
-		
-		return true;
-	}
 	
 	/**
 	 * Waits for incoming events
@@ -190,82 +72,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 	}
 	
 	
-	/**
-	 * Executes a diagnostic service
-	 * @param request
-	 * @param responseExpected
-	 * @return
-	 * @throws DiagnosticServiceExecutionFailed 
-	 */
-	public byte[] executeDiagnosticService(byte[] request, boolean responseExpected) throws DiagnosticServiceExecutionFailed {
-	
-		try {
-			this.clearEvents();
-			this.sendDiagnosticMessage(config.getTesterAddress(), config.getEcuAddressPhysical(), request);
-			boolean ret = this.waitForEvents(1, config.get_A_DoIP_Diagnostic_Message());
-			if (!ret) {
-				DiagnosticServiceExecutionFailed ex = new DiagnosticServiceExecutionFailed("No event received after sending diagnostic request");
-				logger.error(Helper.getExceptionAsString(ex));
-				throw ex;
-			}
-			
-			DoipEvent event = this.events.get(0);
-			if (!(event instanceof DoipEventTcpDiagnosticMessagePosAck)) {
-				DiagnosticServiceExecutionFailed ex = new DiagnosticServiceExecutionFailed("Received Event was not of type DoipEventTcpDiagnosticMessagePosAck");
-				logger.error(Helper.getExceptionAsString(ex));
-				throw ex;
-			}
-			
-			DoipEventTcpDiagnosticMessagePosAck posAckEvent = (DoipEventTcpDiagnosticMessagePosAck) event;
-			DoipTcpDiagnosticMessagePosAck posAckMsg = (DoipTcpDiagnosticMessagePosAck) posAckEvent.getDoipMessage();
-			// TODO: assertNotNull(posAckMsg);
-		
-			// TODO: finish implementation
-		} catch (InterruptedException e) {
-			DiagnosticServiceExecutionFailed ex = new DiagnosticServiceExecutionFailed("Unexpected InterruptedException", e);
-			logger.error(Helper.getExceptionAsString(ex));
-			throw ex;
-			
-		}
-		return null;
-	}
-	
-	/** 
-	 * Sends a routing activation request
-	 * 
-	 * @param sourceAddress Source address of tester which is asking for 
-	 *                      routing activation
-	 * @param activationType
-	 * @param oemData OEM specific data
-	 */
-	public void sendRoutingActivationRequest(
-			int sourceAddress, int activationType, long oemData) {
-		
-		if (logger.isTraceEnabled()) {
-			logger.trace(">>> public void sendRoutingActivationRequest(int sourceAddress, int activationType, long oemData)");
-		}
-		
-		DoipTcpRoutingActivationRequest request = new DoipTcpRoutingActivationRequest(sourceAddress, activationType, oemData);
-		logger.info("Send routing activation request");
-		doipTcpConnection.send(request);
-		
-		if (logger.isTraceEnabled()) {
-			logger.trace("<<< public void sendRoutingActivationRequest(int sourceAddress, int activationType, long oemData)");
-		}
-	}
-	
-	public void sendDiagnosticMessage(int sourceAddress, int targetAddress, byte[] message) {
-		if (logger.isTraceEnabled()) {
-			logger.trace(">>> public void sendDiagnosticMessage()");
-		}
-		
-		DoipTcpDiagnosticMessage request = new DoipTcpDiagnosticMessage(sourceAddress, targetAddress, message);
-		doipTcpConnection.send(request);
-		
-		if (logger.isTraceEnabled()) {
-			logger.trace("<<< public void sendDiagnosticMessage()");
-		}
-	}
 	
 	/*
 	public void sendDiagnosticMessagePosAck(int sourceAddress, int targetAddress, byte[] message) {
@@ -290,16 +96,15 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventConnectionClosed event = 
 				new DoipEventConnectionClosed(System.nanoTime());
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
+	
 	@Override
 	public void onDoipTcpDiagnosticMessage(DoipTcpConnection doipTcpConnection,
 			DoipTcpDiagnosticMessage doipMessage) {
 		DoipEventTcpDiagnosticMessage event = 
 				new DoipEventTcpDiagnosticMessage(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
 	@Override
@@ -309,7 +114,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventTcpDiagnosticMessageNegAck event =
 				new DoipEventTcpDiagnosticMessageNegAck(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
 	@Override
@@ -319,7 +123,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventTcpDiagnosticMessagePosAck event =
 				new DoipEventTcpDiagnosticMessagePosAck(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
 	@Override
@@ -329,7 +132,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventTcpRoutingActivationRequest event =
 				new DoipEventTcpRoutingActivationRequest(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
 	@Override
@@ -339,7 +141,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventTcpRoutingActivationResponse event = 
 				new DoipEventTcpRoutingActivationResponse(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
 	@Override
@@ -348,7 +149,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventTcpAliveCheckRequest event =
 				new DoipEventTcpAliveCheckRequest(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
 	@Override
@@ -357,7 +157,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventTcpAliveCheckResponse event =
 				new DoipEventTcpAliveCheckResponse(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 
 	@Override
@@ -366,7 +165,6 @@ public class DoipTcpConnectionWithEventCollection implements DoipTcpConnectionLi
 		DoipEventTcpHeaderNegAck event =
 				new DoipEventTcpHeaderNegAck(System.nanoTime(), doipMessage);
 		this.events.add(event);
-		this.onEvent(event);
 	}
 	
 //-----------------------------------------------------------------------------

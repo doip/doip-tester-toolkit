@@ -90,6 +90,7 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 		}
 	}
 
+	
 	@Override
 	public void onConnectionClosed(DoipTcpConnection doipTcpConnection) {
 		logger.trace(">>> public void onConnectionClosed(DoipTcpConnection doipTcpConnection)");

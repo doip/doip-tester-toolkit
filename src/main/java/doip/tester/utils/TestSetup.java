@@ -16,12 +16,12 @@ import doip.logging.Logger;
  * Contains all utilities to perform tests for a DoIP gateway.
  * It makes implementation of test cases much more easy.
  */
-public class TesterSetup {
+public class TestSetup {
 
 	/**
 	 * log4j logger
 	 */
-	private static Logger logger = LogManager.getLogger(TesterSetup.class);
+	private static Logger logger = LogManager.getLogger(TestSetup.class);
 	
 	/**
 	 * Test configuration with parameters for all tests.
@@ -31,8 +31,8 @@ public class TesterSetup {
 	/**
 	 * List of TCP connections to the gateway
 	 */
-	private Vector<DoipTcpConnectionWithEventCollection> tcpConnections = 
-			new Vector<DoipTcpConnectionWithEventCollection>();
+	private Vector<TesterTcpConnection> tcpConnections = 
+			new Vector<TesterTcpConnection>();
 	
 	/**
 	 * Message handler for UDP messages
@@ -40,7 +40,7 @@ public class TesterSetup {
 	private TestDoipUdpMessageHandler testDoipUdpMessageHandler = null;
 	
 	
-	public TesterSetup() {
+	public TestSetup() {
 		tcpConnections.ensureCapacity(8);
 	}
 	
@@ -119,13 +119,13 @@ public class TesterSetup {
 	 * @return The new TCP connection
 	 * @throws IOException 
 	 */
-	public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection() throws IOException {
+	public TesterTcpConnection createTesterTcpConnection() throws IOException {
 		try {
 			if (logger.isTraceEnabled()) {
 				logger.trace(">>> public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection()");
 			}
 		
-			DoipTcpConnectionWithEventCollection conn = new DoipTcpConnectionWithEventCollection(config);
+			TesterTcpConnection conn = new TesterTcpConnection(config);
 			this.tcpConnections.add(conn);
 			Socket socket = new Socket(config.getTargetAddress(), config.getTargetPort());
 			socket.setTcpNoDelay(true);
