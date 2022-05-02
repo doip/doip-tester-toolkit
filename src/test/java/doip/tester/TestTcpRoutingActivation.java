@@ -17,6 +17,7 @@ import doip.library.util.StringConstants;
 import doip.logging.LogManager;
 import doip.logging.Logger;
 import doip.tester.gateway.Gateway4UnitTest;
+import doip.tester.gateway.TcpConnection4UnitTest;
 import doip.tester.utils.DoipTcpConnectionWithEventCollection;
 import doip.tester.utils.TestSetup;
 import doip.tester.utils.TesterTcpConnection;
@@ -88,15 +89,14 @@ class TestTcpRoutingActivation {
 	}
 	
 	@Test
-	@Disabled
-	public void test() throws IOException, InterruptedException {
+	public void testSuccessfulRoutingActivation() throws IOException, InterruptedException {
 		
 		TesterTcpConnection conn = null;
 		
 		try {
 			if (logger.isInfoEnabled()) {
 				logger.info(StringConstants.FENCE);
-				logger.info(">>> public void test()");
+				logger.info(">>> public void testsuccessfulRoutingActivation()");
 			}
 			
 			// --- TEST CODE BEGIN --------------------------------------------
@@ -107,18 +107,50 @@ class TestTcpRoutingActivation {
 			// --- TEST CODE END ----------------------------------------------
 			
 		} catch (Exception e) {
-			logger.error("Unexpected " + e.getClass().getName() + " in test()");
+			logger.error("Unexpected " + e.getClass().getName() + " in testSuccessfulRoutingActivation()");
 			logger.error(Helper.getExceptionAsString(e));
 			throw e;
 		} finally {
 			if (conn != null) {
-				conn.stop();
-				conn = null;
+				testerSetup.removeDoipTcpConnectionTest(conn);
 			}
 			if (logger.isInfoEnabled()) {
-				logger.info("<<< public void test()");
+				logger.info("<<< public void testSuccessfulRoutingActivation()");
 				logger.info(StringConstants.FENCE);
 			}
+		}
+	}
+	
+	@Test
+	public void testRoutingActivationNoResponse() throws IOException, InterruptedException {
+		TesterTcpConnection conn = null;
+		try {
+			if (logger.isInfoEnabled()) {
+				logger.info(StringConstants.FENCE);
+				logger.info(">>> public void testRoutingActivationNoResponse()");
+			}
+			
+			// --- TEST CODE BEGIN --------------------------------------------
+			
+			conn = testerSetup.createTesterTcpConnection();
+			Thread.sleep(1);
+			TcpConnection4UnitTest gwconn = gateway.getConnection(0);
+			gwconn.setSilent(true);
+			boolean ret = conn.performRoutingActivation(0, 0x10);
+			assertFalse(ret, "Routing activation succeeded, but it was expected to fail");
+		
+			// --- TEST CODE END ----------------------------------------------
+			
+		} catch (Exception e) {
+			logger.error("Unexpected " + e.getClass().getName() + " in testRoutingActivationNoResponse()");
+			logger.error(Helper.getExceptionAsString(e));
+			throw e;
+		} finally {
+			if (logger.isInfoEnabled()) {
+				logger.info("<<< public void testRoutingActivationNoResponse()");
+				logger.info(StringConstants.FENCE);
+			}
+			
 		}
 	}
 }

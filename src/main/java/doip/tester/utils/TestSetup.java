@@ -35,9 +35,9 @@ public class TestSetup {
 			new Vector<TesterTcpConnection>();
 	
 	/**
-	 * Message handler for UDP messages
+	 * Module for udp communication for a tester
 	 */
-	private DoipUdpMessageHandlerWithEventCollection testDoipUdpMessageHandler = null;
+	private TesterUdpCommModule testerUdpCommModule = null;
 	
 	
 	public TestSetup() {
@@ -63,9 +63,9 @@ public class TestSetup {
 			}
 	
 			this.config = new TestConfig(filename);
-			this.testDoipUdpMessageHandler = new DoipUdpMessageHandlerWithEventCollection(this.config);
+			this.testerUdpCommModule = new TesterUdpCommModule(this.config);
 			DatagramSocket socket = new DatagramSocket();
-			this.testDoipUdpMessageHandler.start(socket);
+			this.testerUdpCommModule.start(socket);
 			return true;
 			
 		} catch (Exception e) {
@@ -94,9 +94,9 @@ public class TestSetup {
 				this.tcpConnections.clear();
 			}
 			
-			if (this.testDoipUdpMessageHandler != null) {
-				this.testDoipUdpMessageHandler.stop();
-				this.testDoipUdpMessageHandler = null;
+			if (this.testerUdpCommModule != null) {
+				this.testerUdpCommModule.stop();
+				this.testerUdpCommModule = null;
 			}
 			
 			this.config = null;
@@ -169,8 +169,9 @@ public class TestSetup {
 		}
 	}
 	
-	public DoipUdpMessageHandlerWithEventCollection getTestDoipUdpMessageHandler() {
-		return this.testDoipUdpMessageHandler;
+	
+	public TesterUdpCommModule getTesterUdpCommModule() {
+		return this.testerUdpCommModule;
 	}
 	
 	public TestConfig getConfig() {

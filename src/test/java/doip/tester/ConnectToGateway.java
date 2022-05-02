@@ -1,13 +1,5 @@
 package doip.tester;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.IOException;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import doip.library.util.Helper;
@@ -15,7 +7,6 @@ import doip.library.util.StringConstants;
 import doip.logging.LogManager;
 import doip.logging.Logger;
 import doip.tester.gateway.Gateway4UnitTest;
-import doip.tester.utils.DoipTcpConnectionWithEventCollection;
 import doip.tester.utils.TestSetup;
 import doip.tester.utils.TesterTcpConnection;
 

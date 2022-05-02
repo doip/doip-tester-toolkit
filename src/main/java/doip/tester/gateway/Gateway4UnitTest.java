@@ -89,6 +89,10 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 			logger.trace("<<< public void onConnectionAccepted(TcpServer tcpServer, Socket socket)");
 		}
 	}
+	
+	public TcpConnection4UnitTest getConnection(int index) {
+		return this.tcpConnectionList.get(index);
+	}
 
 	
 	@Override
@@ -101,8 +105,17 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 
 	@Override
 	public void onDoipTcpDiagnosticMessage(DoipTcpConnection doipTcpConnection, DoipTcpDiagnosticMessage doipMessage) {
-		// TODO Auto-generated method stub
+		int sourceAddress = doipMessage.getSourceAddress();
+		int targetAddress = doipMessage.getTargetAddress();
+		DoipTcpDiagnosticMessagePosAck posAck =
+				new DoipTcpDiagnosticMessagePosAck(targetAddress, sourceAddress, 0, new byte[0]);
+		doipTcpConnection.send(posAck);
 		
+		DoipTcpDiagnosticMessage response = 
+				new DoipTcpDiagnosticMessage(
+						targetAddress, sourceAddress, new byte[] {0x7F, 0x10, 0x10});
+		
+		doipTcpConnection.send(response);
 	}
 
 	@Override
