@@ -1,4 +1,4 @@
-package doip.tester;
+package doip.tester.tcp;
 
 import org.junit.jupiter.api.Test;
 

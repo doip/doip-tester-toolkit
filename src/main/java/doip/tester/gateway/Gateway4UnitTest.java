@@ -1,12 +1,16 @@
 package doip.tester.gateway;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 
 import doip.library.comm.DoipTcpConnection;
 import doip.library.comm.DoipTcpConnectionListener;
+import doip.library.comm.DoipUdpMessageHandler;
+import doip.library.comm.DoipUdpMessageHandlerListener;
 import doip.library.message.DoipTcpAliveCheckRequest;
 import doip.library.message.DoipTcpAliveCheckResponse;
 import doip.library.message.DoipTcpDiagnosticMessage;
@@ -15,6 +19,15 @@ import doip.library.message.DoipTcpDiagnosticMessagePosAck;
 import doip.library.message.DoipTcpHeaderNegAck;
 import doip.library.message.DoipTcpRoutingActivationRequest;
 import doip.library.message.DoipTcpRoutingActivationResponse;
+import doip.library.message.DoipUdpDiagnosticPowerModeRequest;
+import doip.library.message.DoipUdpDiagnosticPowerModeResponse;
+import doip.library.message.DoipUdpEntityStatusRequest;
+import doip.library.message.DoipUdpEntityStatusResponse;
+import doip.library.message.DoipUdpHeaderNegAck;
+import doip.library.message.DoipUdpVehicleAnnouncementMessage;
+import doip.library.message.DoipUdpVehicleIdentRequest;
+import doip.library.message.DoipUdpVehicleIdentRequestWithEid;
+import doip.library.message.DoipUdpVehicleIdentRequestWithVin;
 import doip.library.net.TcpServer;
 import doip.library.net.TcpServerListener;
 import doip.library.net.TcpServerThread;
@@ -29,14 +42,21 @@ import doip.logging.Logger;
  * to that the possibility to modify its behavior so it can be used for bad case tests. In other words
  * the Gateway4UnitTest can be configured to behave NOT according to ISO specification.
  */
-public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionListener {
+public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionListener, DoipUdpMessageHandlerListener {
 	
 	private static Logger logger = LogManager.getLogger(Gateway4UnitTest.class);
 	
 	private TcpServerThread tcpServerThread = null;
 	
-	private ServerSocket tcpSocket = null;
+	/**
+	 * UDP socket for this gateway
+	 */
+	private MulticastSocket udpSocket = null;
 	
+	private DoipUdpMessageHandler udpMessageHandler = null;
+	
+	private ServerSocket tcpSocket = null;
+
 	private LinkedList<TcpConnection4UnitTest> tcpConnectionList = new LinkedList<TcpConnection4UnitTest>();
 	
 	private int entityAddress = 0xE000;
@@ -46,6 +66,11 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 	public void start() throws IOException {
 		String function = "public void start()";
 		logger.trace(">>> " + function);
+		
+		this.udpSocket = Helper.createUdpSocket(null, 13400, null); 
+		udpMessageHandler = new DoipUdpMessageHandler("GW-UDP", null);
+		this.udpMessageHandler.addListener(this);
+		udpMessageHandler.start(this.udpSocket);
 		
 		logger.info("Create new TcpServerThread with name 'TCP-SERV'");
 		tcpServerThread = new TcpServerThread("TCP-SERV");
@@ -65,6 +90,13 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 			tcpServerThread.stop();
 			tcpServerThread = null;
 		}
+		
+		if (udpMessageHandler != null) {
+			logger.info("Stop UDP message handler");
+			udpMessageHandler.stop();
+			this.udpMessageHandler = null;
+		}
+		
 		logger.trace("<<< public void stop()");
 	}
 
@@ -121,14 +153,12 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 	@Override
 	public void onDoipTcpDiagnosticMessageNegAck(DoipTcpConnection doipTcpConnection,
 			DoipTcpDiagnosticMessageNegAck doipMessage) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onDoipTcpDiagnosticMessagePosAck(DoipTcpConnection doipTcpConnection,
 			DoipTcpDiagnosticMessagePosAck doipMessage) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -144,26 +174,72 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 	@Override
 	public void onDoipTcpRoutingActivationResponse(DoipTcpConnection doipTcpConnection,
 			DoipTcpRoutingActivationResponse doipMessage) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onDoipTcpAliveCheckRequest(DoipTcpConnection doipTcpConnection, DoipTcpAliveCheckRequest doipMessage) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onDoipTcpAliveCheckResponse(DoipTcpConnection doipTcpConnection,
 			DoipTcpAliveCheckResponse doipMessage) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onDoipTcpHeaderNegAck(DoipTcpConnection doipTcpConnection, DoipTcpHeaderNegAck doipMessage) {
-		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDoipUdpVehicleIdentRequest(DoipUdpVehicleIdentRequest doipMessage, DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpVehicleIdentRequestWithEid(DoipUdpVehicleIdentRequestWithEid doipMessage,
+			DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpVehicleIdentRequestWithVin(DoipUdpVehicleIdentRequestWithVin doipMessage,
+			DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpVehicleAnnouncementMessage(DoipUdpVehicleAnnouncementMessage doipMessage,
+			DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpDiagnosticPowerModeRequest(DoipUdpDiagnosticPowerModeRequest doipMessage,
+			DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpDiagnosticPowerModeResponse(DoipUdpDiagnosticPowerModeResponse doipMessage,
+			DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpEntityStatusRequest(DoipUdpEntityStatusRequest doipMessage, DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpEntityStatusResponse(DoipUdpEntityStatusResponse doipMessage, DatagramPacket packet) {
+		
+	}
+
+	@Override
+	public void onDoipUdpHeaderNegAck(DoipUdpHeaderNegAck doipMessage, DatagramPacket packet) {
 		
 	}
 }

@@ -1,4 +1,4 @@
-package doip.tester;
+package doip.tester.tcp;
 
 import static doip.junit.Assertions.assertNotNull;
 import static doip.junit.Assertions.fail;
