@@ -14,11 +14,11 @@ repositories {
 }
 
 dependencies {
-	// implementation 'com.github.doip:doip-library:1.2.0'
+	implementation 'com.github.doip:doip-library:1.2.1'
 	// During development it might be more convenient to include the
 	// project directly. For this you need to add the dependency
 	// also in the file settings.gradle
-	implementation ':doip-library'
+	// implementation ':doip-library'
 	// Or you reference directly to the JAR file
 	// implementation files('../doip-library/build/libs/doip-library-1.2.0.jar')
 
