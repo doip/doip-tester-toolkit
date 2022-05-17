@@ -1,6 +1,7 @@
 package doip.tester.toolkit;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 
 import doip.library.message.DoipUdpVehicleIdentRequest;
@@ -83,12 +84,27 @@ public class TesterUdpCommModule extends DoipUdpMessageHandlerWithEventCollectio
 	 *                     to send the data.
 	 */
 	public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address) throws IOException {
-		logger.trace(">>> public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address) throws IOException");
-		DoipUdpVehicleIdentRequestWithVin request = new DoipUdpVehicleIdentRequestWithVin(
-				vin);
-		this.send(request, address,
-				config.getTargetPort());
-		logger.trace("<<< public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address) throws IOException");
+		logger.trace(">>> public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address)");
+		try {
+			DoipUdpVehicleIdentRequestWithVin request = new DoipUdpVehicleIdentRequestWithVin(
+					vin);
+			this.send(request, address,
+					config.getTargetPort());
+		} finally {
+			logger.trace("<<< public void sendDoipUdpVehicleIdentRequestWithVin(byte[] vin, InetAddress address)");
+		}
+	} 
+	
+	@Override
+	public void onHeaderTooShort(DatagramPacket packet) {
+		String function = "public void onHeaderTooShort(DatagramPacket packet)";
+		logger.trace(">>> " + function);
+		try {
+			logger.info("Received UDP message which was too short, but there is nothing to do " +
+				"because a diagnostic tester shall not send a negative acknowledge message.");
+		} finally {
+			logger.trace("<<< " + function);
+		}
 	}
 	
 }
