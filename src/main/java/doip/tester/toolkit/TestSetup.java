@@ -55,7 +55,7 @@ public class TestSetup {
 	 * @throws MissingProperty 
 	 * @throws IOException 
 	 */
-	public boolean initialize(String filename) throws Exception {
+	public boolean initialize(String filename) throws IOException, MissingProperty, EmptyPropertyValue {
 		String function = "public boolean initialize(String filename)";
 		try {
 			if (logger.isTraceEnabled()) {
@@ -68,10 +68,6 @@ public class TestSetup {
 			this.testerUdpCommModule.start(socket);
 			return true;
 			
-		} catch (Exception e) {
-			logger.error("Unexpected " + e.getClass().getName() + " in function '" + function + "'");
-			logger.error(Helper.getExceptionAsString(e));
-			throw e;
 		} finally {
 			if (logger.isTraceEnabled()) {
 				logger.trace("<<< public boolean initialize(String filename)");
@@ -106,11 +102,6 @@ public class TestSetup {
 		
 			return true;
 
-		} catch (Exception e) {
-			logger.error("Unexpected " + e.getClass().getName() + " in function '" + function + "'");
-			logger.error(Helper.getExceptionAsString(e));
-			throw e;
-			
 		} finally {
 			if (logger.isTraceEnabled()) {
 				logger.trace("<<< public boolean uninitialize()");
@@ -136,12 +127,6 @@ public class TestSetup {
 			conn.start(socket);
 			return conn;
 		
-		} catch (Exception e) {
-			if (logger.isErrorEnabled()) {
-				logger.error("Unexpected " + e.getClass().getName() + " in createDoipTcpConnectionWithEventCollection()");
-				logger.error(Helper.getExceptionAsString(e));
-			}
-			throw e;
 		} finally {
 			if (logger.isTraceEnabled()) {
 				logger.trace("<<< public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection()");
@@ -162,10 +147,6 @@ public class TestSetup {
 			conn.stop();
 			this.tcpConnections.remove(conn);
 		
-		} catch (Exception e) {
-			logger.error("Unexpected " + e.getClass().getName() + " in removeDoipTcpConnectionTest()");
-			logger.error(e.getClass().getName());
-			throw e;
 		} finally {
 			if (logger.isTraceEnabled()) {
 				logger.trace("<<< public void removeDoipTcpConnectionTest(TestDoipTcpConnection conn)");
