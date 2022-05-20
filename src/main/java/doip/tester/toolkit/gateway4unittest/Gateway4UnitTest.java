@@ -61,43 +61,69 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 	
 	private int entityAddress = 0xE000;
 	
+	private byte[] vin = new byte[17];
+	private byte[] eid = new byte[6];
+	private byte[] gid = new byte[6];
+	
 	private static int connectionCounter = 1;
+	
+	private boolean isSilent = false;
+	
+	private byte[] nextUdpResponse = null;
+	
+	public void setSilent(boolean value) {
+		this.isSilent = value;
+	}
 
 	public void start() throws IOException {
 		String function = "public void start()";
 		logger.trace(">>> " + function);
 		
-		this.udpSocket = Helper.createUdpSocket(null, 13400, null); 
-		udpMessageHandler = new DoipUdpMessageHandler("GW-UDP", null);
-		this.udpMessageHandler.addListener(this);
-		udpMessageHandler.start(this.udpSocket);
-		
-		logger.info("Create new TcpServerThread with name 'TCP-SERV'");
-		tcpServerThread = new TcpServerThread("TCP-SERV");
-		tcpServerThread.addListener(this);
-		logger.info("Create TCP server socket on port 13400");
-		tcpSocket = Helper.createTcpServerSocket(null, 13400);
-		logger.info("Start TcpServerThread");
-		tcpServerThread.start(tcpSocket);
-		
-		logger.trace("<<< " + function);
+		try {
+			logger.info("Create UDP socket");
+			this.udpSocket = Helper.createUdpSocket(null, 13400, null); 
+			udpMessageHandler = new DoipUdpMessageHandler("GW-UDP", null);
+			this.udpMessageHandler.addListener(this);
+			logger.info("Start UDP message handler");
+			udpMessageHandler.start(this.udpSocket);
+			
+			logger.info("Create new TcpServerThread with name 'TCP-SERV'");
+			tcpServerThread = new TcpServerThread("TCP-SERV");
+			tcpServerThread.addListener(this);
+			logger.info("Create TCP server socket on port 13400");
+			tcpSocket = Helper.createTcpServerSocket(null, 13400);
+			logger.info("Start TcpServerThread");
+			tcpServerThread.start(tcpSocket);
+		} catch (IOException e) {
+			logger.fatal("Unexpected " + e.getClass().getName() + " in start()");
+			logger.fatal(Helper.getExceptionAsString(e));
+			throw e;
+		} finally {
+			logger.trace("<<< " + function);
+		}
 	}
 	
 	public void stop() {
-		logger.trace(">>> public void stop()");
-		if (tcpServerThread != null) {
-			logger.info("Stop TCP server thread");
-			tcpServerThread.stop();
-			tcpServerThread = null;
+		try {
+			logger.trace(">>> public void stop()");
+			if (tcpServerThread != null) {
+				logger.info("Stop TCP server thread");
+				tcpServerThread.stop();
+				tcpServerThread = null;
+			}
+			
+			if (udpMessageHandler != null) {
+				logger.info("Stop UDP message handler");
+				udpMessageHandler.stop();
+				this.udpMessageHandler = null;
+			}
+		} finally {		
+			logger.trace("<<< public void stop()");
 		}
-		
-		if (udpMessageHandler != null) {
-			logger.info("Stop UDP message handler");
-			udpMessageHandler.stop();
-			this.udpMessageHandler = null;
-		}
-		
-		logger.trace("<<< public void stop()");
+	}
+	
+	public void setNextUdpResponse(byte[] msg) {
+		this.nextUdpResponse = msg;
 	}
 
 	@Override
@@ -116,7 +142,7 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 			conn.start(socket);
 			
 		} catch (Exception e) {
-			logger.error("Unexpected IOException when closing socket of a established TCP connection");
+			logger.fatal("Unexpected Exception");
 		} finally {
 			logger.trace("<<< public void onConnectionAccepted(TcpServer tcpServer, Socket socket)");
 		}
@@ -195,7 +221,28 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 
 	@Override
 	public void onDoipUdpVehicleIdentRequest(DoipUdpVehicleIdentRequest doipMessage, DatagramPacket packet) {
-		
+		String function = "public void onDoipUdpVehicleIdentRequest(DoipUdpVehicleIdentRequest doipMessage, DatagramPacket packet)";
+		try {
+			logger.trace(">>> " + function);
+			if (!isSilent) {
+				if (nextUdpResponse != null) {
+					try {
+						this.udpMessageHandler.sendDatagramPacket(nextUdpResponse,  nextUdpResponse.length, packet.getAddress(), packet.getPort());
+					} catch (IOException e) {
+					} finally {
+						nextUdpResponse = null;
+					}
+				} else {
+					DoipUdpVehicleAnnouncementMessage vam = new DoipUdpVehicleAnnouncementMessage(vin, entityAddress, eid, gid, 0, 0);
+					try {
+						this.udpMessageHandler.send(vam, packet.getAddress(), packet.getPort());
+					} catch (IOException e) {
+					}
+				}
+			}
+		} finally {
+			logger.trace("<<< " + function);
+		}
 	}
 
 	@Override
