@@ -1,7 +1,13 @@
 package doip.tester.toolkit.unittests.tcp;
 
+import static doip.junit.Assertions.fail;
+
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
+import doip.library.properties.EmptyPropertyValue;
+import doip.library.properties.MissingProperty;
 import doip.library.util.Helper;
 import doip.library.util.StringConstants;
 import doip.logging.LogManager;
@@ -16,7 +22,7 @@ class ConnectToGateway {
 	
 
 	@Test
-	public void test() throws Exception {
+	public void test() {
 		try {
 			if (logger.isInfoEnabled()) {
 				logger.info(StringConstants.FENCE);
@@ -55,10 +61,11 @@ class ConnectToGateway {
 			
 			// --- TEST CODE END ----------------------------------------------
 			
-		} catch (Exception e) {
-			logger.error("Unexpected " + e.getClass().getName() + " in test()");
+		} catch (IOException | InterruptedException | MissingProperty | EmptyPropertyValue e) {
+			String message = "Unexpected " + e.getClass().getName() + " in test()"; 
+			logger.error(message);
 			logger.error(Helper.getExceptionAsString(e));
-			throw e;
+			fail(message);
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public void test()");

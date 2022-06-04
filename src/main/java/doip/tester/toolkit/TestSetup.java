@@ -122,7 +122,12 @@ public class TestSetup {
 		
 			TesterTcpConnection conn = new TesterTcpConnection(config);
 			this.tcpConnections.add(conn);
+			logger.info("Connect to host with IP address " + config.getTargetAddress() + " and port number " + config.getTargetPort());
+			long before = System.nanoTime();
 			Socket socket = new Socket(config.getTargetAddress(), config.getTargetPort());
+			long after = System.nanoTime();
+			long duration = after - before;
+			logger.info("Connection established. It took " + duration + " to establish the connection.");
 			socket.setTcpNoDelay(true);
 			conn.start(socket);
 			return conn;

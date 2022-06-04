@@ -36,7 +36,7 @@ class TestTcpRoutingActivation {
 		try {
 			if (logger.isInfoEnabled()) {
 				logger.info(StringConstants.LINE);
-				logger.info(">>> public static void setUpBeforeClass() throws Exception");
+				logger.info(">>> public static void setUpBeforeClass()");
 			}
 
 			gateway = new Gateway4UnitTest();
@@ -52,7 +52,7 @@ class TestTcpRoutingActivation {
 			throw e;
 		} finally {
 			if (logger.isInfoEnabled()) {
-				logger.info("<<< public static void setUpBeforeClass() throws Exception");
+				logger.info("<<< public static void setUpBeforeClass()");
 				logger.info(StringConstants.LINE);
 			}
 		}
@@ -63,7 +63,7 @@ class TestTcpRoutingActivation {
 		try {
 			if (logger.isInfoEnabled()) {
 				logger.info(StringConstants.LINE);
-				logger.info(">>> public static void tearDownAfterClass() throws Exception");
+				logger.info(">>> public static void tearDownAfterClass()");
 			}
 			
 			if (testerSetup != null) {
@@ -82,7 +82,7 @@ class TestTcpRoutingActivation {
 			throw e;
 		} finally {
 			if (logger.isInfoEnabled()) {
-				logger.info("<<< public static void tearDownAfterClass() throws Exception");
+				logger.info("<<< public static void tearDownAfterClass()");
 				logger.info(StringConstants.LINE);
 			}
 		}
