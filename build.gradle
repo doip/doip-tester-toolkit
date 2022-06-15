@@ -4,9 +4,8 @@ plugins {
 	id 'jacoco'
 }
 
-// We can't use group if it will be used as a composite build
-// group = "com.github.doip"
-version = '1.0.0'
+group = "com.github.doip"
+version = '0.0.1'
 
 repositories {
 	mavenCentral()
