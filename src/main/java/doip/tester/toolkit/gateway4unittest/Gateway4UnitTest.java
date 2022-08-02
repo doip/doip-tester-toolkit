@@ -191,10 +191,19 @@ public class Gateway4UnitTest implements TcpServerListener, DoipTcpConnectionLis
 	@Override
 	public void onDoipTcpRoutingActivationRequest(DoipTcpConnection doipTcpConnection,
 			DoipTcpRoutingActivationRequest doipMessage) {
-		int testerAddress = doipMessage.getSourceAddress();
-		
-		DoipTcpRoutingActivationResponse resp = new DoipTcpRoutingActivationResponse(testerAddress, entityAddress, 0x10, -1);
-		doipTcpConnection.send(resp);
+		String funcion = "public void onDoipTcpRoutingActivationRequest(DoipTcpConnection doipTcpConnection, DoipTcpRoutingActivationRequest doipMessage)";
+		try {
+			logger.trace(">>> " + funcion);
+			if (!isSilent) {
+				int testerAddress = doipMessage.getSourceAddress();
+			
+				DoipTcpRoutingActivationResponse resp = new DoipTcpRoutingActivationResponse(testerAddress, entityAddress, 0x10, -1);
+				doipTcpConnection.send(resp);
+			}
+		} finally {
+			logger.trace("<<< " + funcion);
+			 
+		}
 	}
 
 	@Override

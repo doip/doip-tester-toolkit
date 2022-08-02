@@ -11,7 +11,7 @@
 				%n is a new line character.
 			 -->
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%n" />
-			<ThresholdFilter threadName="TCP-SERV" onMatch="ACCEPT" onMismatch="DENY"/>
+			<!--<ThresholdFilter threadName="TCP-SERV" onMatch="ACCEPT" onMismatch="DENY"/>-->
 		</Console>
 		<File name="File" fileName="doip-tester-toolkit.log" append="false">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%n" />
@@ -19,7 +19,7 @@
 	</Appenders>
 	<Loggers>
 		<!-- Every logger starting with "doip" will print trace level -->
-		<Logger name="doip" level="trace" additivity="false">
+		<Logger name="doip" level="info" additivity="false">
 			<AppenderRef ref="Console" />
 			<AppenderRef ref="File" />
 		</Logger>
@@ -38,12 +38,12 @@
 			<AppenderRef ref="File" />
 		</Logger>
 
-		<Logger name="doip.tester" level="trace" additivity="false">
+		<Logger name="doip.tester" level="info" additivity="false">
 			<AppenderRef ref="Console" />
 			<AppenderRef ref="File" />
 		</Logger>
 
-		<Root level="trace">
+		<Root level="info">
 			<AppenderRef ref="Console" />
 			<AppenderRef ref="File" />
 		</Root>

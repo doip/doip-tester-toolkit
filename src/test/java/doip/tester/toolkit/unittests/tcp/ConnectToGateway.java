@@ -31,13 +31,22 @@ class ConnectToGateway {
 			
 			// --- TEST CODE BEGIN --------------------------------------------
 
+			logger.info("Create instance of Gateway4UnitTest");
 			Gateway4UnitTest gateway = new Gateway4UnitTest();
+			logger.info("Instance of Gateway4UnitTest created");
+			
 			logger.info("Start Gateway4UnitTest");
 			gateway.start();
 			logger.info("Gateway4UnitTest started");
+			
+			logger.info("Wait 100 ms to give gateway time to start up");
 			Thread.sleep(100);
+			
+			logger.info("Create instance of TestSetup");
 			TestSetup setup = new TestSetup();
-			logger.info("Initialize TesterSetup");
+			logger.info("Instance of TestSetup created");
+			
+			logger.info("Initialize TestSetup using file src/test/resources/tester.properties");
 			setup.initialize("src/test/resources/tester.properties");
 			logger.info("TesterSetup initialized");
 			

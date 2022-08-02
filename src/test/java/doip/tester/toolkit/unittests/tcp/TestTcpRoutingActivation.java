@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import doip.library.comm.DoipTcpConnection;
+import doip.library.message.DoipMessage;
+import doip.library.message.DoipTcpRoutingActivationResponse;
 import doip.library.util.Helper;
 import doip.library.util.StringConstants;
 import doip.logging.LogManager;
@@ -19,6 +21,8 @@ import doip.logging.Logger;
 import doip.tester.toolkit.DoipTcpConnectionWithEventCollection;
 import doip.tester.toolkit.TestSetup;
 import doip.tester.toolkit.TesterTcpConnection;
+import doip.tester.toolkit.event.DoipEventTcpRoutingActivationResponse;
+import doip.tester.toolkit.exception.RoutingActivationFailed;
 import doip.tester.toolkit.gateway4unittest.Gateway4UnitTest;
 import doip.tester.toolkit.gateway4unittest.TcpConnection4UnitTest;
 
@@ -89,7 +93,7 @@ class TestTcpRoutingActivation {
 	}
 	
 	@Test
-	public void testSuccessfulRoutingActivation() throws IOException, InterruptedException {
+	public void testSuccessfulRoutingActivation() throws IOException, InterruptedException, RoutingActivationFailed {
 		
 		TesterTcpConnection conn = null;
 		
@@ -101,9 +105,14 @@ class TestTcpRoutingActivation {
 			
 			// --- TEST CODE BEGIN --------------------------------------------
 			conn = testerSetup.createTesterTcpConnection();
-			boolean ret = conn.performRoutingActivation(0, 0x10);
-			assertTrue(ret, "Routing activation failed");
-		
+			DoipEventTcpRoutingActivationResponse event = conn.performRoutingActivation(0);
+			assertTrue(event != null, "Response on routing activation was null");
+			DoipMessage message = event.getDoipMessage();
+			assertTrue(message != null);
+			assertTrue(message instanceof DoipTcpRoutingActivationResponse);
+			DoipTcpRoutingActivationResponse response = (DoipTcpRoutingActivationResponse) message;
+			int code = response.getResponseCode();
+			assertEquals(0x10, code);
 			// --- TEST CODE END ----------------------------------------------
 			
 		} catch (Exception e) {
@@ -133,11 +142,11 @@ class TestTcpRoutingActivation {
 			// --- TEST CODE BEGIN --------------------------------------------
 			
 			conn = testerSetup.createTesterTcpConnection();
-			Thread.sleep(1);
+			Thread.sleep(10);
 			TcpConnection4UnitTest gwconn = gateway.getConnection(0);
 			gwconn.setSilent(true);
-			boolean ret = conn.performRoutingActivation(0, 0x10);
-			assertFalse(ret, "Routing activation succeeded, but it was expected to fail");
+			final TesterTcpConnection conntmp = conn;
+			assertThrows(RoutingActivationFailed.class, () -> conntmp.performRoutingActivation(0));
 		
 			// --- TEST CODE END ----------------------------------------------
 			

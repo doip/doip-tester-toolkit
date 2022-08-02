@@ -4,7 +4,7 @@ plugins {
 	id 'jacoco'
 }
 
-group = "com.github.doip"
+//group = "com.github.doip"
 version = '0.0.1'
 
 repositories {

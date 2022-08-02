@@ -12,6 +12,7 @@ import doip.tester.toolkit.event.DoipEventTcpDiagnosticMessage;
 import doip.tester.toolkit.event.DoipEventTcpDiagnosticMessagePosAck;
 import doip.tester.toolkit.event.DoipEventTcpRoutingActivationResponse;
 import doip.tester.toolkit.exception.DiagnosticServiceExecutionFailed;
+import doip.tester.toolkit.exception.RoutingActivationFailed;
 
 public class TesterTcpConnection extends DoipTcpConnectionWithEventCollection {
 
@@ -62,7 +63,7 @@ public class TesterTcpConnection extends DoipTcpConnectionWithEventCollection {
 	 * @throws InterruptedException
 	 * @throws RoutingActivationFailed
 	 */
-	public boolean performRoutingActivation(int activationType, int expectedResponseCode) throws InterruptedException {
+	public DoipEventTcpRoutingActivationResponse performRoutingActivation(int activationType) throws InterruptedException, RoutingActivationFailed {
 		String function = "public boolean performRoutingActivation(int activationType, int expectedResponseCode)";
 		try {
 			logger.trace(">>> " + function);
@@ -82,26 +83,23 @@ public class TesterTcpConnection extends DoipTcpConnectionWithEventCollection {
 			}
 			if (ret == false) {
 				logger.error("No Routing Activation Response received");
-				return false;
+				throw new RoutingActivationFailed(
+						RoutingActivationFailed.NO_RESPONSE_RECEIVED,
+						"No routing activation response received");
 			}
 
 			// Get the event out of the queue
 			DoipEvent event = this.getEvent(0);
 			if (!(event instanceof DoipEventTcpRoutingActivationResponse)) {
 				logger.error("Received event is not type of DoipEventTcpRoutingActivationResponse");
-				return false;
+				throw new RoutingActivationFailed(
+						RoutingActivationFailed.WRONG_RESPONSE_RECEIVED,
+						"No routing activation response received");
 			}
 
 			// Check the response code which shall match to the expected response code
 			DoipEventTcpRoutingActivationResponse eventRoutingActivationResponse = (DoipEventTcpRoutingActivationResponse) event;
-			DoipTcpRoutingActivationResponse  routingActivationResponse = (DoipTcpRoutingActivationResponse) eventRoutingActivationResponse.getDoipMessage();
-			int responseCode = routingActivationResponse.getResponseCode();
-			if (responseCode != expectedResponseCode) {
-				logger.error("Response code does not match the expected response code");
-				return false;
-			}
-
-			return true;
+			return eventRoutingActivationResponse;
 		} finally {
 			logger.trace("<<< " + function);
 		}
