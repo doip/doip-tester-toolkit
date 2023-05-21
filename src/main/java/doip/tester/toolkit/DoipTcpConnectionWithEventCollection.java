@@ -16,8 +16,6 @@ import doip.library.message.DoipTcpHeaderNegAck;
 import doip.library.message.DoipTcpRoutingActivationRequest;
 import doip.library.message.DoipTcpRoutingActivationResponse;
 import doip.library.util.Helper;
-import doip.logging.LogManager;
-import doip.logging.Logger;
 import doip.tester.toolkit.event.DoipEvent;
 import doip.tester.toolkit.event.DoipEventConnectionClosed;
 import doip.tester.toolkit.event.DoipEventTcpAliveCheckRequest;
@@ -30,7 +28,8 @@ import doip.tester.toolkit.event.DoipEventTcpRoutingActivationRequest;
 import doip.tester.toolkit.event.DoipEventTcpRoutingActivationResponse;
 import doip.tester.toolkit.exception.DiagnosticServiceExecutionFailed;
 import doip.tester.toolkit.exception.RoutingActivationFailed;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 /**
  * Class for testing a DoIP TCP connection. 
  */
@@ -61,32 +60,17 @@ public class DoipTcpConnectionWithEventCollection extends DoipTcpConnection impl
 	 *                       queue
 	 *                       
 	 * @param timeout        Maximum time to wait until the number of events
-	 *                       in the event queue has been reached.
+	 *                       in the event queue has been reached. The time
+	 *                       is given as milliseconds.
 	 *                       
 	 * @return Returns true if the number of events has been reached with in the
 	 *         timeout time.
 	 * @throws InterruptedException 
 	 */
-	public boolean waitForEvents(int numberOfEvents, long timeout) throws InterruptedException {
-		return  Wait.waitForEvents(events, numberOfEvents, timeout);
+	public DoipEvent waitForEvents(int numberOfEvents, long timeoutms) throws InterruptedException {
+		return  Wait.waitForEvents(events, numberOfEvents, timeoutms);
 	}
-	
-	
-	
-	/*
-	public void sendDiagnosticMessagePosAck(int sourceAddress, int targetAddress, byte[] message) {
-		if (logger.isTraceEnabled()) {
-			logger.trace(">>> public void sendDiagnosticMessagePosAck(int sourceAddress, int targetAddress, byte[] message)");
-		}
-		
-		DoipTcpDiagnosticMessagePosAck msg = new DoipTcpDiagnosticMessagePosAck(sourceAddress, targetAddress, 0x00, message);
-		doipTcpConnection.send(msg);
-	
-		if (logger.isTraceEnabled()) {
-			logger.trace("<<< public void sendDiagnosticMessagePosAck(int sourceAddress, int targetAddress, byte[] message)");
-		}
-	}*/
-	
+
 //-----------------------------------------------------------------------------
 // Callback functions
 //-----------------------------------------------------------------------------
@@ -167,9 +151,9 @@ public class DoipTcpConnectionWithEventCollection extends DoipTcpConnection impl
 		this.events.add(event);
 	}
 	
-//-----------------------------------------------------------------------------
-// Getter & Setter
-//-----------------------------------------------------------------------------
+	public int getEventCount() {
+		return this.events.size();
+	}
 
 	public DoipEvent getEvent(int index) {
 		return this.events.get(index);

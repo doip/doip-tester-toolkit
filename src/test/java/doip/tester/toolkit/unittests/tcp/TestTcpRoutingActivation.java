@@ -16,21 +16,21 @@ import doip.library.message.DoipMessage;
 import doip.library.message.DoipTcpRoutingActivationResponse;
 import doip.library.util.Helper;
 import doip.library.util.StringConstants;
-import doip.logging.LogManager;
-import doip.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import doip.tester.toolkit.DoipTcpConnectionWithEventCollection;
 import doip.tester.toolkit.TestSetup;
 import doip.tester.toolkit.TesterTcpConnection;
 import doip.tester.toolkit.event.DoipEventTcpRoutingActivationResponse;
 import doip.tester.toolkit.exception.RoutingActivationFailed;
-import doip.tester.toolkit.gateway4unittest.Gateway4UnitTest;
-import doip.tester.toolkit.gateway4unittest.TcpConnection4UnitTest;
+import doip.tester.toolkit.server4unittest.DoipServer4UnitTest;
+import doip.tester.toolkit.server4unittest.DoipTcpConnection4UnitTest;
 
 class TestTcpRoutingActivation {
 	
 	private static Logger logger = LogManager.getLogger(TestTcpRoutingActivation.class);
 	
-	private static Gateway4UnitTest gateway = null;
+	private static DoipServer4UnitTest gateway = null;
 	
 	private static TestSetup testerSetup = null;
 	
@@ -39,15 +39,15 @@ class TestTcpRoutingActivation {
 		
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 				logger.info(">>> public static void setUpBeforeClass()");
 			}
 
-			gateway = new Gateway4UnitTest();
+			gateway = new DoipServer4UnitTest();
 			gateway.start();
 			
 			testerSetup = new TestSetup();
-			testerSetup.initialize("src/test/resources/tester.properties");
+			testerSetup.initialize();
 			
 			
 		} catch (Exception e) {
@@ -57,7 +57,7 @@ class TestTcpRoutingActivation {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public static void setUpBeforeClass()");
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 			}
 		}
 	}
@@ -66,7 +66,7 @@ class TestTcpRoutingActivation {
 	public static void tearDownAfterClass() throws Exception {
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 				logger.info(">>> public static void tearDownAfterClass()");
 			}
 			
@@ -87,7 +87,7 @@ class TestTcpRoutingActivation {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public static void tearDownAfterClass()");
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 			}
 		}
 	}
@@ -99,13 +99,15 @@ class TestTcpRoutingActivation {
 		
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.FENCE);
+				logger.info(StringConstants.HASH_LINE);
 				logger.info(">>> public void testsuccessfulRoutingActivation()");
 			}
 			
 			// --- TEST CODE BEGIN --------------------------------------------
 			conn = testerSetup.createTesterTcpConnection();
-			DoipEventTcpRoutingActivationResponse event = conn.performRoutingActivation(0);
+			int testerAddress = testerSetup.getConfig().getTesterAddress();
+
+			DoipEventTcpRoutingActivationResponse event = conn.performRoutingActivation(testerAddress, 0);
 			assertTrue(event != null, "Response on routing activation was null");
 			DoipMessage message = event.getDoipMessage();
 			assertTrue(message != null);
@@ -125,7 +127,7 @@ class TestTcpRoutingActivation {
 			}
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public void testSuccessfulRoutingActivation()");
-				logger.info(StringConstants.FENCE);
+				logger.info(StringConstants.HASH_LINE);
 			}
 		}
 	}
@@ -135,7 +137,7 @@ class TestTcpRoutingActivation {
 		TesterTcpConnection conn = null;
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.FENCE);
+				logger.info(StringConstants.HASH_LINE);
 				logger.info(">>> public void testRoutingActivationNoResponse()");
 			}
 			
@@ -143,10 +145,11 @@ class TestTcpRoutingActivation {
 			
 			conn = testerSetup.createTesterTcpConnection();
 			Thread.sleep(10);
-			TcpConnection4UnitTest gwconn = gateway.getConnection(0);
+			DoipTcpConnection4UnitTest gwconn = gateway.getConnection(0);
 			gwconn.setSilent(true);
 			final TesterTcpConnection conntmp = conn;
-			assertThrows(RoutingActivationFailed.class, () -> conntmp.performRoutingActivation(0));
+			int testerAddress = testerSetup.getConfig().getTesterAddress();
+			assertThrows(RoutingActivationFailed.class, () -> conntmp.performRoutingActivation(testerAddress, 0));
 		
 			// --- TEST CODE END ----------------------------------------------
 			
@@ -157,7 +160,7 @@ class TestTcpRoutingActivation {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public void testRoutingActivationNoResponse()");
-				logger.info(StringConstants.FENCE);
+				logger.info(StringConstants.HASH_LINE);
 			}
 			
 		}

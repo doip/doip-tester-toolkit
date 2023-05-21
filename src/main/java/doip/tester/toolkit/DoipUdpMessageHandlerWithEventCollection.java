@@ -20,8 +20,6 @@ import doip.library.message.DoipUdpVehicleIdentRequest;
 import doip.library.message.DoipUdpVehicleIdentRequestWithEid;
 import doip.library.message.DoipUdpVehicleIdentRequestWithVin;
 import doip.library.timer.NanoTimer;
-import doip.logging.LogManager;
-import doip.logging.Logger;
 import doip.tester.toolkit.event.DoipEvent;
 import doip.tester.toolkit.event.DoipEventUdpDiagnosticPowerModeRequest;
 import doip.tester.toolkit.event.DoipEventUdpDiagnosticPowerModeResponse;
@@ -33,6 +31,8 @@ import doip.tester.toolkit.event.DoipEventUdpVehicleIdentRequest;
 import doip.tester.toolkit.event.DoipEventUdpVehicleIdentRequestWithEid;
 import doip.tester.toolkit.event.DoipEventUdpVehicleIdentRequestWithVin;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * Implements features to perform tests on a DoipUdpMessageHandler.
  */
@@ -121,7 +121,7 @@ public class DoipUdpMessageHandlerWithEventCollection extends DoipUdpMessageHand
 	 *         timeout time.
 	 * @throws InterruptedException 
 	 */
-	public boolean waitForEvents(int numberOfEvents, long timeout) throws InterruptedException {
+	public DoipEvent waitForEvents(int numberOfEvents, long timeout) throws InterruptedException {
 		return  Wait.waitForEvents(events, numberOfEvents, timeout);
 	}
 

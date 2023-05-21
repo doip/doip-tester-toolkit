@@ -10,6 +10,7 @@ public class RoutingActivationFailed extends DoipException {
 
 	private static final long serialVersionUID = 2319347034953538180L;
 	
+	public static final int GENERAL_ERROR = 0;
 	public static final int NO_RESPONSE_RECEIVED = 1;
 	public static final int WRONG_RESPONSE_RECEIVED = 2;
 	public static final int INVALID_RESPONSE_RECEIVED = 3;

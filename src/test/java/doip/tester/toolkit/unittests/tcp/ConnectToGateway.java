@@ -1,20 +1,21 @@
 package doip.tester.toolkit.unittests.tcp;
 
-import static doip.junit.Assertions.fail;
+import static doip.junit.Assertions.*;
 
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import doip.library.properties.EmptyPropertyValue;
+import doip.junit.InitializationError;
 import doip.library.properties.MissingProperty;
+import doip.library.properties.MissingSystemProperty;
 import doip.library.util.Helper;
 import doip.library.util.StringConstants;
-import doip.logging.LogManager;
-import doip.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import doip.tester.toolkit.TestSetup;
 import doip.tester.toolkit.TesterTcpConnection;
-import doip.tester.toolkit.gateway4unittest.Gateway4UnitTest;
+import doip.tester.toolkit.server4unittest.DoipServer4UnitTest;
 
 class ConnectToGateway {
 
@@ -22,17 +23,17 @@ class ConnectToGateway {
 	
 
 	@Test
-	public void test() {
+	public void test() throws Exception {
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.FENCE);
+				logger.info(StringConstants.HASH_LINE);
 				logger.info(">>> public void test()");
 			}
 			
 			// --- TEST CODE BEGIN --------------------------------------------
 
 			logger.info("Create instance of Gateway4UnitTest");
-			Gateway4UnitTest gateway = new Gateway4UnitTest();
+			DoipServer4UnitTest gateway = new DoipServer4UnitTest();
 			logger.info("Instance of Gateway4UnitTest created");
 			
 			logger.info("Start Gateway4UnitTest");
@@ -47,7 +48,7 @@ class ConnectToGateway {
 			logger.info("Instance of TestSetup created");
 			
 			logger.info("Initialize TestSetup using file src/test/resources/tester.properties");
-			setup.initialize("src/test/resources/tester.properties");
+			setup.initialize();
 			logger.info("TesterSetup initialized");
 			
 			logger.info("Establish connection to Gateway4UnitTest");
@@ -70,15 +71,14 @@ class ConnectToGateway {
 			
 			// --- TEST CODE END ----------------------------------------------
 			
-		} catch (IOException | InterruptedException | MissingProperty | EmptyPropertyValue e) {
-			String message = "Unexpected " + e.getClass().getName() + " in test()"; 
-			logger.error(message);
-			logger.error(Helper.getExceptionAsString(e));
-			fail(message);
+		} catch (MissingSystemProperty e) {
+			throw logger.throwing(e);
+		} catch (InterruptedException e) {
+			throw logger.throwing(e);
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public void test()");
-				logger.info(StringConstants.FENCE);
+				logger.info(StringConstants.HASH_LINE);
 			}
 		}
 	}

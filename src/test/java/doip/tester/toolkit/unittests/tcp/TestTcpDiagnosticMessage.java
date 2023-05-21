@@ -10,20 +10,22 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import doip.library.message.DoipTcpDiagnosticMessage;
 import doip.library.util.Helper;
 import doip.library.util.StringConstants;
-import doip.logging.LogManager;
-import doip.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import doip.tester.toolkit.TestSetup;
 import doip.tester.toolkit.TesterTcpConnection;
+import doip.tester.toolkit.event.DoipEventTcpDiagnosticMessage;
 import doip.tester.toolkit.exception.DiagnosticServiceExecutionFailed;
-import doip.tester.toolkit.gateway4unittest.Gateway4UnitTest;
+import doip.tester.toolkit.server4unittest.DoipServer4UnitTest;
 
 public class TestTcpDiagnosticMessage {
 
 	private static Logger logger = LogManager.getLogger(TestTcpDiagnosticMessage.class);
 	
-	private static Gateway4UnitTest gateway = null;
+	private static DoipServer4UnitTest gateway = null;
 	
 	private TestSetup testSetup = null;
 	
@@ -34,12 +36,12 @@ public class TestTcpDiagnosticMessage {
 		
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 				logger.info(">>> public static void setUpBeforeClass() throws Exception");
 			}
 
 			// --- SET UP BEFORE CLASS BEGIN --------------------------------
-			gateway = new Gateway4UnitTest();
+			gateway = new DoipServer4UnitTest();
 			gateway.start();
 			// --- SET UP BEFORE CLASS END ----------------------------------
 			
@@ -50,7 +52,7 @@ public class TestTcpDiagnosticMessage {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public static void setUpBeforeClass() throws Exception");
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 			}
 		}
 	}
@@ -59,7 +61,7 @@ public class TestTcpDiagnosticMessage {
 	public static void tearDownAfterClass() throws Exception {
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 				logger.info(">>> public static void tearDownAfterClass() throws Exception");
 			}
 			
@@ -77,7 +79,7 @@ public class TestTcpDiagnosticMessage {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public static void tearDownAfterClass() throws Exception");
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 			}
 		}
 	}
@@ -86,13 +88,13 @@ public class TestTcpDiagnosticMessage {
 	public void setUp() throws Exception {
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 				logger.info(">>> public void setUp() throws Exception");
 			}
 			
 			// --- SET UP CODE BEGIN ----------------------------------------
 			testSetup = new TestSetup();
-			testSetup.initialize("src/test/resources/tester.properties");
+			testSetup.initialize();
 			tcpConn = testSetup.createTesterTcpConnection();
 			// --- SET UP CODE END ------------------------------------------
 			
@@ -103,7 +105,7 @@ public class TestTcpDiagnosticMessage {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public void setUp() throws Exception");
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 			}	
 		}
 	}
@@ -112,7 +114,7 @@ public class TestTcpDiagnosticMessage {
 	public void tearDown() throws Exception {
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 				logger.info(">>> public void tearDown() throws Exception");
 			}
 			
@@ -135,7 +137,7 @@ public class TestTcpDiagnosticMessage {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public void tearDown() throws Exception");
-				logger.info(StringConstants.LINE);
+				logger.info(StringConstants.SINGLE_LINE);
 			}
 		}
 	}
@@ -144,14 +146,17 @@ public class TestTcpDiagnosticMessage {
 	public void testSuccessfulExecuteDiagnosticService() {
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(StringConstants.WALL);
+				logger.info(StringConstants.HASH_LINE);
 				logger.info(">>> public void testSuccessfulExecuteDiagnosticService()");
 			}
 			
 			// --- TEST CODE BEGIN --------------------------------------------
-			byte[] response = tcpConn.executeDiagnosticService(new byte[] {0x10, 0x01}, true);
-			assertNotNull(response);
-			assertArrayEquals(new byte[] {0x7F, 0x10, 0x10}, response, "Response does not match expected value");
+			int testerAddress = testSetup.getConfig().getTesterAddress();
+			DoipEventTcpDiagnosticMessage doipEventDiagResponse = tcpConn.executeDiagnosticServicePosAck(new byte[] {0x10, 0x01});
+			assertNotNull(doipEventDiagResponse);
+			DoipTcpDiagnosticMessage doipDiagResponse = (DoipTcpDiagnosticMessage) doipEventDiagResponse.getDoipMessage();
+			byte[] response = doipDiagResponse.getDiagnosticMessage();
+			assertArrayEquals(new byte[] {0x50, 0x03, 0x00, 0x32, 0x01, (byte) 0xF4}, response, "Response does not match expected value");
 			// --- TEST CODE END ----------------------------------------------
 			
 		} catch (DiagnosticServiceExecutionFailed e) {
@@ -164,7 +169,7 @@ public class TestTcpDiagnosticMessage {
 		} finally {
 			if (logger.isInfoEnabled()) {
 				logger.info("<<< public void testSuccessfulExecuteDiagnosticService()");
-				logger.info(StringConstants.WALL);
+				logger.info(StringConstants.HASH_LINE);
 			}
 		}
 	}

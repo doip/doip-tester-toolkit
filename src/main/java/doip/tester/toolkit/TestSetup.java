@@ -3,14 +3,16 @@ package doip.tester.toolkit;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.Vector;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import doip.library.properties.EmptyPropertyValue;
 import doip.library.properties.MissingProperty;
-import doip.library.util.Helper;
-import doip.logging.LogManager;
-import doip.logging.Logger;
+import doip.library.properties.MissingSystemProperty;
 
 /**
  * Contains all utilities to perform tests for a DoIP gateway.
@@ -22,6 +24,8 @@ public class TestSetup {
 	 * log4j logger
 	 */
 	private static Logger logger = LogManager.getLogger(TestSetup.class);
+	private static Marker enter = MarkerManager.getMarker("ENTER");
+	private static Marker exit = MarkerManager.getMarker("EXIT");
 	
 	/**
 	 * Test configuration with parameters for all tests.
@@ -46,32 +50,31 @@ public class TestSetup {
 	
 	/**
 	 * Initializes the test setup
-	 * @param filename Filename of a property file which contains
-	 *                 all settings which are required to initialize
-	 *                 the test setup.
 	 * @return Returns true if initialization was successful.
 	 * @throws Exception 
 	 * @throws EmptyPropertyValue 
 	 * @throws MissingProperty 
 	 * @throws IOException 
 	 */
-	public boolean initialize(String filename) throws IOException, MissingProperty, EmptyPropertyValue {
-		String function = "public boolean initialize(String filename)";
+	public void initialize() throws IOException, EmptyPropertyValue, MissingProperty, MissingSystemProperty {
 		try {
-			if (logger.isTraceEnabled()) {
-				logger.trace(">>> " + function);
-			}
+			logger.trace(enter, ">>> public void initialize()");
+			
+			logger.debug("Initialize the test setup");
 	
-			this.config = new TestConfig(filename);
+			this.config = new TestConfig();
+			logger.debug("Create UDP socket");
 			this.testerUdpCommModule = new TesterUdpCommModule(this.config);
 			DatagramSocket socket = new DatagramSocket();
+			logger.debug("Start thread which listens on data from UDP socket");
 			this.testerUdpCommModule.start(socket);
-			return true;
 			
+			logger.debug("Test setup has been completely initialized.");
+	
+		} catch (IOException e) {
+			throw logger.throwing(e);
 		} finally {
-			if (logger.isTraceEnabled()) {
-				logger.trace("<<< public boolean initialize(String filename)");
-			}
+				logger.trace(exit, ">>> public void initialize()");
 		}
 	}
 	
@@ -82,9 +85,7 @@ public class TestSetup {
 	public boolean uninitialize() {
 		String function = "public boolean uninitialize()";
 		try {
-			if (logger.isTraceEnabled()) {
-				logger.trace(">>> public boolean uninitialize()");
-			}
+			logger.trace(enter, ">>> public boolean uninitialize()");
 	
 			if (this.tcpConnections != null) {
 				for (DoipTcpConnectionWithEventCollection conn : this.tcpConnections) {
@@ -103,9 +104,7 @@ public class TestSetup {
 			return true;
 
 		} finally {
-			if (logger.isTraceEnabled()) {
-				logger.trace("<<< public boolean uninitialize()");
-			}
+			logger.trace(exit, "<<< public boolean uninitialize()");
 		}
 	}
 	
@@ -116,9 +115,7 @@ public class TestSetup {
 	 */
 	public TesterTcpConnection createTesterTcpConnection() throws IOException {
 		try {
-			if (logger.isTraceEnabled()) {
-				logger.trace(">>> public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection()");
-			}
+			logger.trace(enter, "public TesterTcpConnection createTesterTcpConnection()");
 		
 			TesterTcpConnection conn = new TesterTcpConnection(config);
 			this.tcpConnections.add(conn);
@@ -127,15 +124,13 @@ public class TestSetup {
 			Socket socket = new Socket(config.getTargetAddress(), config.getTargetPort());
 			long after = System.nanoTime();
 			long duration = after - before;
-			logger.info("Connection established. It took " + duration + " to establish the connection.");
+			logger.info("Connection established. It took " + duration + " ns to establish the connection.");
 			socket.setTcpNoDelay(true);
 			conn.start(socket);
 			return conn;
 		
 		} finally {
-			if (logger.isTraceEnabled()) {
-				logger.trace("<<< public DoipTcpConnectionWithEventCollection createDoipTcpConnectionWithEventCollection()");
-			}
+			logger.trace(exit, "public TesterTcpConnection createTesterTcpConnection()");
 		}
 	}
 	
@@ -145,17 +140,13 @@ public class TestSetup {
 	 */
 	public void removeDoipTcpConnectionTest(DoipTcpConnectionWithEventCollection conn) {
 		try {
-			if (logger.isTraceEnabled()) {
-				logger.trace(">>> public void removeDoipTcpConnectionTest(TestDoipTcpConnection conn)");
-			}
+			logger.trace(enter, ">>> public void removeDoipTcpConnectionTest(TestDoipTcpConnection conn)");
 			
 			conn.stop();
 			this.tcpConnections.remove(conn);
 		
 		} finally {
-			if (logger.isTraceEnabled()) {
-				logger.trace("<<< public void removeDoipTcpConnectionTest(TestDoipTcpConnection conn)");
-			}
+			logger.trace(exit, "<<< public void removeDoipTcpConnectionTest(TestDoipTcpConnection conn)");
 		}
 	}
 	

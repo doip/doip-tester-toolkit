@@ -10,11 +10,11 @@
 				%m is the log message.
 				%n is a new line character.
 			 -->
-			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%n" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%ex{10}%n"/>
 			<!--<ThresholdFilter threadName="TCP-SERV" onMatch="ACCEPT" onMismatch="DENY"/>-->
 		</Console>
 		<File name="File" fileName="doip-tester-toolkit.log" append="false">
-			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%n" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%ex{10}%n" />
 		</File>
 	</Appenders>
 	<Loggers>

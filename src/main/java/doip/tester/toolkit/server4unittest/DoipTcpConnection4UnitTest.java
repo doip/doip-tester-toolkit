@@ -1,4 +1,4 @@
-package doip.tester.toolkit.gateway4unittest;
+package doip.tester.toolkit.server4unittest;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -7,10 +7,10 @@ import doip.library.comm.DoipTcpConnection;
 import doip.library.message.DoipMessage;
 import doip.library.util.Conversion;
 import doip.library.util.Helper;
-import doip.logging.LogManager;
-import doip.logging.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
-public class TcpConnection4UnitTest extends DoipTcpConnection {
+public class DoipTcpConnection4UnitTest extends DoipTcpConnection {
 
 	private static Logger logger = LogManager.getLogger(DoipTcpConnection.class);
 
@@ -20,7 +20,7 @@ public class TcpConnection4UnitTest extends DoipTcpConnection {
 		this.isSilent = value;
 	}
 
-	public TcpConnection4UnitTest(String tcpReceiverThreadName, int maxByteArraySizeLogging) {
+	public DoipTcpConnection4UnitTest(String tcpReceiverThreadName, int maxByteArraySizeLogging) {
 		super(tcpReceiverThreadName, maxByteArraySizeLogging);
 	}
 	

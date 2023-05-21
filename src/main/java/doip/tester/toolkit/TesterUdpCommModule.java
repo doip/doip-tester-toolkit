@@ -7,8 +7,8 @@ import java.net.InetAddress;
 import doip.library.message.DoipUdpVehicleIdentRequest;
 import doip.library.message.DoipUdpVehicleIdentRequestWithEid;
 import doip.library.message.DoipUdpVehicleIdentRequestWithVin;
-import doip.logging.LogManager;
-import doip.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TesterUdpCommModule extends DoipUdpMessageHandlerWithEventCollection {
 	
@@ -26,16 +26,17 @@ public class TesterUdpCommModule extends DoipUdpMessageHandlerWithEventCollectio
 	 * @param data The data to send.
 	 * 
 	 * @param address The target address to which the UDP message shall
-	 *                be send
+	 *                be send. The target address can be a unicast,
+	 *                multicast or broadcast address.
 	 *                
 	 * @throws IOException Throws an IOException if there was a problem 
 	 *                     to send the data
 	 */
 	public void send(byte[] data, InetAddress address) throws IOException {
-		logger.trace(">>> public void send(byte[] data, InetAddress address) throws IOException");
+		logger.trace(">>> public void send(byte[] data, InetAddress address)");
 		this.sendDatagramPacket(data, data.length,
 				address, config.getTargetPort());
-		logger.trace("<<< public void send(byte[] data, InetAddress address) throws IOException");
+		logger.trace("<<< public void send(byte[] data, InetAddress address)");
 	}
 
 	/**
@@ -49,6 +50,7 @@ public class TesterUdpCommModule extends DoipUdpMessageHandlerWithEventCollectio
 	public void sendDoipUdpVehicleIdentRequest(InetAddress address) throws IOException {
 		logger.trace(">>> public void sendDoipUdpVehicleIdentRequest(InetAddress address) throws IOException");
 		DoipUdpVehicleIdentRequest request = new DoipUdpVehicleIdentRequest();
+		logger.info(TextBuilder.sendMessage(request.getMessageName()));
 		this.send(request, address,
 				config.getTargetPort());
 		logger.trace("<<< public void sendDoipUdpVehicleIdentRequest(InetAddress address) throws IOException");
@@ -97,14 +99,34 @@ public class TesterUdpCommModule extends DoipUdpMessageHandlerWithEventCollectio
 	
 	@Override
 	public void onHeaderTooShort(DatagramPacket packet) {
-		String function = "public void onHeaderTooShort(DatagramPacket packet)";
-		logger.trace(">>> " + function);
-		try {
-			logger.info("Received UDP message which was too short, but there is nothing to do " +
+		logger.trace(">>> public void onHeaderTooShort(DatagramPacket packet)");
+		logger.info("Received UDP message which was too short, but there is nothing to do " +
 				"because a diagnostic tester shall not send a negative acknowledge message.");
-		} finally {
-			logger.trace("<<< " + function);
-		}
+		logger.trace("<<< public void onHeaderTooShort(DatagramPacket packet)");
+	}
+	
+	@Override
+	public void onInvalidPayloadLength(DatagramPacket packet) {
+		logger.trace(">>> public void onInvalidPayloadLength(DatagramPacket packet)");
+		logger.info("Received UPD message with invalid payload length, but there is nothing to do " +
+				"because a diagnostic tester shall not send a negative acknowledge message.");
+		logger.trace("<<< public void onInvalidPayloadLength(DatagramPacket packet)");
+	}
+
+	@Override
+	public void onInvalidPayloadType(DatagramPacket packet) {
+		logger.trace(">>> public void onInvalidPayloadType(DatagramPacket packet)");
+		logger.info("Received UPD message with invalid payload type, but there is nothing to do " +
+				"because a diagnostic tester shall not send a negative acknowledge message.");
+		logger.trace("<<< public void onInvalidPayloadType(DatagramPacket packet)");
+	}
+	
+	@Override
+	public void onHeaderIncorrectPatternFormat(DatagramPacket packet) {
+		logger.trace(">>> 	public void onHeaderIncorrectPatternFormat(DatagramPacket packet)");
+		logger.info("Received UPD message with incorrect pattern format, but there is nothing to do " +
+				"because a diagnostic tester shall not send a negative acknowledge message.");
+		logger.trace("<<< 	public void onHeaderIncorrectPatternFormat(DatagramPacket packet)");
 	}
 	
 }
