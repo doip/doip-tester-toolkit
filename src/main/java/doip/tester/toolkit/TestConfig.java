@@ -77,7 +77,26 @@ public class TestConfig {
 	private int maxByteArraySizeLogging = 0;
 	
 	
+	private int A_DoIP_Ctrl = 2000;
 	
+	private int A_DoIP_Announce_Wait = 500;	
+	
+	private int A_DoIP_Announce_Interval = 500;
+	
+	private int A_DoIP_Announce_Num = 3;
+	
+	private int A_DoIP_Diagnostic_Message = 2000;
+	
+	private int T_TCP_General_Inactivity = 300000;
+	
+	private int T_TCP_Initial_Inactivity = 2000;
+	
+	private int T_TCP_Alive_Check = 500;
+	
+	private int A_Processing_Time = 2000;
+	
+	private int A_Vehicle_Discovery_Timer = 5000;
+
 //-----------------------------------------------------------------------------	
 // Constructor
 //-----------------------------------------------------------------------------
@@ -120,6 +139,36 @@ public class TestConfig {
 			ecuAddressFunctional = file.getMandatoryPropertyAsInt("ecu.address.functional");
 			logger.info("ecu.address.functional = 0x" + Integer.toHexString(ecuAddressFunctional).toUpperCase());
 			
+			A_DoIP_Ctrl = file.getOptionalPropertyAsInt("A_DoIP_Ctrl");
+			if (A_DoIP_Ctrl == 0) A_DoIP_Ctrl = 2000;
+			
+			A_DoIP_Announce_Wait = file.getOptionalPropertyAsInt("A_DoIP_Announce_Wait");
+			if (A_DoIP_Announce_Wait == 0) A_DoIP_Announce_Wait = 500;
+			
+			A_DoIP_Announce_Interval = file.getOptionalPropertyAsInt("A_DoIP_Announce_Interval");
+			if (A_DoIP_Announce_Interval == 0) A_DoIP_Announce_Interval = 500;
+			
+			A_DoIP_Announce_Num = file.getOptionalPropertyAsInt("A_DoIP_Announce_Num");
+			if (A_DoIP_Announce_Num == 0) A_DoIP_Announce_Num = 3;
+			
+			A_DoIP_Diagnostic_Message = file.getOptionalPropertyAsInt("A_DoIP_Diagnostic_Message");
+			if (A_DoIP_Diagnostic_Message == 0) A_DoIP_Diagnostic_Message = 2000;
+			
+			T_TCP_General_Inactivity = file.getOptionalPropertyAsInt("T_TCP_General_Inactivity");
+			if (T_TCP_General_Inactivity == 0) T_TCP_General_Inactivity = 300000;
+			
+			T_TCP_Initial_Inactivity = file.getOptionalPropertyAsInt("T_TCP_Initial_Inactivity");
+			if (T_TCP_Initial_Inactivity == 0) T_TCP_Initial_Inactivity = 2000;
+			
+			T_TCP_Alive_Check = file.getOptionalPropertyAsInt("T_TCP_Alive_Check");
+			if (T_TCP_Alive_Check == 0) T_TCP_Alive_Check = 500;
+			
+			A_Processing_Time = file.getOptionalPropertyAsInt("A_Processing_Time");
+			if (A_Processing_Time == 0) A_Processing_Time = 2000;
+			
+			A_Vehicle_Discovery_Timer = file.getOptionalPropertyAsInt("A_Vehicle_Discovery_Timer");
+			if (A_Vehicle_Discovery_Timer == 0) A_Vehicle_Discovery_Timer = 5000;
+			
 			logger.info("Reading configuration file finished.");
 		} finally {
 			logger.trace(markerExit, "<<< public TestConfig()");
@@ -147,23 +196,23 @@ public class TestConfig {
 	}
 	
 	/**
-	 * Time to wait for a UDP response after a UDP request has ben sent
+	 * Time to wait for a UDP response after a UDP request has been sent
 	 * @return
 	 */
 	public int get_A_DoIP_Ctrl() {
-		return 2000;
+		return A_DoIP_Ctrl;
 	}
 	
 	public int get_A_DoIP_Announce_Wait() {
-		return random.nextInt(500);
+		return random.nextInt(A_DoIP_Announce_Wait);
 	}
 	
 	public int get_A_DoIP_Announce_Interval() {
-		return 500;
+		return A_DoIP_Announce_Interval;
 	}
 	
 	public int get_A_DoIP_Announce_Num() {
-		return 3;
+		return A_DoIP_Announce_Num;
 	}
 	
 	/**
@@ -174,27 +223,27 @@ public class TestConfig {
 	 * @return
 	 */
 	public int get_A_DoIP_Diagnostic_Message() {
-		return 2000;
+		return A_DoIP_Diagnostic_Message;
 	}
 	
 	public int get_T_TCP_General_Inactivity() {
-		return 300000;
+		return T_TCP_General_Inactivity;
 	}
 	
 	public int get_T_TCP_Initial_Inactivity() {
-		return 2000;
+		return T_TCP_Initial_Inactivity;
 	}
 	
 	public int get_T_TCP_Alive_Check() {
-		return 500;
+		return T_TCP_Alive_Check;
 	}
 	
 	public int get_A_Processing_Time() {
-		return 2000;
+		return A_Processing_Time;
 	}
 	
 	public int get_A_Vehicle_Discovery_Timer() {
-		return 5000;
+		return A_Vehicle_Discovery_Timer;
 	}
 	
 	/*
