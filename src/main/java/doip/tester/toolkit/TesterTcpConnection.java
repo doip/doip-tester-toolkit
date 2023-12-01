@@ -59,7 +59,12 @@ public class TesterTcpConnection extends DoipTcpConnectionWithEventCollection {
 	}
 
  	/**
-	 * Performs a routing activation.
+	 * Performs a routing activation. It will send a routing activation request
+	 * and waits for a routing activation response. If no response has been received
+	 * then the function will throw a RoutingActivationFailed exception with
+	 * error code NO_RESPONSE_RECEIVED. If a response other than a routing activation
+	 * response has been received then a RoutingActivationFailed exception with error
+	 * code WRONG_REPONSE_RECEIVED will be thrown.
 	 * @param activationType The activation type (see ISO 13400)
 	 * @param expectedResponseCode The expected response code in the response.
 	 * @return Returns the DoipEventTcpRoutingActivationResponse
@@ -97,9 +102,11 @@ public class TesterTcpConnection extends DoipTcpConnectionWithEventCollection {
 						"No valid DoIP routing activation response received");
 			}
 
-			// Check the response code which shall match to the expected response code
+			// TODO: Check the response code which shall match to the expected response code
 			DoipEventTcpRoutingActivationResponse eventRoutingActivationResponse = 
 					(DoipEventTcpRoutingActivationResponse) event;
+			
+			
 			return eventRoutingActivationResponse;
 		} finally {
 			logger.trace(exit, "<<< " + function);

@@ -1,12 +1,11 @@
 package doip.tester.toolkit.unittests.tcp;
 
-import static doip.junit.Assertions.*;
+import static com.starcode88.jtest.Assertions.*;
 
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import doip.junit.InitializationError;
 import doip.library.properties.MissingProperty;
 import doip.library.properties.MissingSystemProperty;
 import doip.library.util.Helper;
