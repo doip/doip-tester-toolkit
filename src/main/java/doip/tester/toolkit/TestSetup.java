@@ -3,6 +3,8 @@ package doip.tester.toolkit;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.logging.log4j.LogManager;
@@ -43,8 +45,11 @@ public class TestSetup {
 	 */
 	private TesterUdpCommModule testerUdpCommModule = null;
 	
+	private Map<String, String> context;
 	
 	public TestSetup() {
+		context = new HashMap<String, String>();
+		context.put("context", "tester");
 		tcpConnections.ensureCapacity(8);
 	}
 	
@@ -65,6 +70,7 @@ public class TestSetup {
 			this.config = new TestConfig();
 			logger.debug("Create UDP socket");
 			this.testerUdpCommModule = new TesterUdpCommModule(this.config);
+			this.testerUdpCommModule.setContext(context);
 			DatagramSocket socket = new DatagramSocket();
 			logger.debug("Start thread which listens on data from UDP socket");
 			this.testerUdpCommModule.start(socket);
@@ -115,7 +121,7 @@ public class TestSetup {
 	 */
 	public TesterTcpConnection createTesterTcpConnection() throws IOException {
 		try {
-			logger.trace(enter, "public TesterTcpConnection createTesterTcpConnection()");
+			logger.trace(enter, ">>> public TesterTcpConnection createTesterTcpConnection()");
 		
 			TesterTcpConnection conn = new TesterTcpConnection(config);
 			this.tcpConnections.add(conn);
@@ -126,11 +132,12 @@ public class TestSetup {
 			long duration = after - before;
 			logger.info("Connection established. It took " + duration + " ns to establish the connection.");
 			socket.setTcpNoDelay(true);
+			conn.setContext(context);
 			conn.start(socket);
 			return conn;
 		
 		} finally {
-			logger.trace(exit, "public TesterTcpConnection createTesterTcpConnection()");
+			logger.trace(exit, "<<< public TesterTcpConnection createTesterTcpConnection()");
 		}
 	}
 	

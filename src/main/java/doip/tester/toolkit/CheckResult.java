@@ -28,5 +28,4 @@ public class CheckResult {
 	public String getText() {
 		return text;
 	}
-
 }

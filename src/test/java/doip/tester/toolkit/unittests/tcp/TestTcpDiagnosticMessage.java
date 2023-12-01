@@ -1,8 +1,6 @@
 package doip.tester.toolkit.unittests.tcp;
 
-import static doip.junit.Assertions.assertNotNull;
-import static doip.junit.Assertions.fail;
-import static doip.junit.Assertions.assertArrayEquals;
+import static com.starcode88.jtest.Assertions.*;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;

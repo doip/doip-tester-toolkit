@@ -133,10 +133,12 @@ public class EventChecker {
 		if (expectedClass != null) {
 			// 	Check if it a DoipEventMessage was expected
 			if (DoipEventUdpMessage.class.isAssignableFrom(expectedClass)) {
-				String text = "It was expected to receive a valid DoIP UDP message, but no valid DoIP UDP message has been received"; 
+//				String text = "It was expected to receive a valid DoIP UDP message, but no valid DoIP UDP message has been received"; 
+				String text = getTextForExpectedResult(expectedClass) + ", but this wasn't the case."; 
 				return new CheckResult(CheckResult.NO_UDP_RESPONSE_RECEIVED, text);
 			} else if (DoipEventTcpMessage.class.isAssignableFrom(expectedClass)) {
-				String text = "It was expected to receive a valid DoIP TCP message, but no valid DoIP TCP message has been received"; 
+//				String text = "It was expected to receive a valid DoIP TCP message, but no valid DoIP TCP message has been received"; 
+				String text = getTextForExpectedResult(expectedClass) + ", but this wasn't the case."; 
 				return new CheckResult(CheckResult.NO_TCP_RESPONSE_RECEIVED, text);
 			} else if (DoipEventConnectionClosed.class.isAssignableFrom(expectedClass)) {
 				String text = "It was expected that the socket has been closed, but it hasn't been closed"; 
