@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Configuration>
 	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
+		<Console name="console" target="SYSTEM_OUT">
 			<!--
 				The first section defines logging of current time.
 				%t stands for the thread name
@@ -13,39 +13,23 @@
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%ex{10}%n"/>
 			<!--<ThresholdFilter threadName="TCP-SERV" onMatch="ACCEPT" onMismatch="DENY"/>-->
 		</Console>
-		<File name="File" fileName="doip-tester-toolkit.log" append="false">
+		<File name="logs/trace.log" fileName="trace.log" append="false">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20t]  %-6level %-56logger - %msg%ex{10}%n" />
 		</File>
 	</Appenders>
 	<Loggers>
-		<!-- Every logger starting with "doip" will print trace level -->
-		<Logger name="doip" level="info" additivity="false">
+		<Logger name="doip.library.comm.DoipTcpStreamBuffer" level="WARN" additivity="false">
 			<AppenderRef ref="Console" />
 			<AppenderRef ref="File" />
 		</Logger>
-		<!--
-			The logger of "doip.library.comm.DoipTcpStream buffer is very verbose.
-			Therefore the log level will be set to error.
-		 -->
-		<Logger name="doip.library.comm.DoipTcpStreamBuffer" level="warn" additivity="false">
+		<Logger name="doip.library.util.StreamBuffer" level="WARN" additivity="false">
 			<AppenderRef ref="Console" />
 			<AppenderRef ref="File" />
 		</Logger>
 
-		<!-- Set log level for stream buffer -->
-		<Logger name="doip.library.util.StreamBuffer" level="warn" additivity="false">
-			<AppenderRef ref="Console" />
-			<AppenderRef ref="File" />
-		</Logger>
-
-		<Logger name="doip.tester" level="info" additivity="false">
-			<AppenderRef ref="Console" />
-			<AppenderRef ref="File" />
-		</Logger>
-
-		<Root level="info">
-			<AppenderRef ref="Console" />
-			<AppenderRef ref="File" />
+		<Root level="TRACE">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="trace.log" />
 		</Root>
 	</Loggers>
 </Configuration>
